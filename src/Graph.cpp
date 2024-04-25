@@ -1,5 +1,5 @@
 
-#include "../includes/Graph.h"
+#include "../headerFiles//Graph.h"
 
 Vertex::Vertex(const std::string& in, const int type) : type_(type), info(in), visited(false), processing(false), indegree(0), dist(0), path(nullptr), queueIndex(0) {}
 
