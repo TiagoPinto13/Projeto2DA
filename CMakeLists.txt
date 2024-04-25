@@ -11,4 +11,7 @@ add_executable(proj2DA
         headerFiles/Graph.h
         headerFiles/MutablePriorityQueue.h
         src/Graph.cpp
+        main.cpp
+        headerFiles/Data.h
+        src/Data.cpp
 )
