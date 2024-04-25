@@ -14,7 +14,7 @@ class Edge;
 
 class Vertex {
 public:
-    Vertex(const std::string& in, const int type);
+    Vertex(const std::string& in, const double & longitude, const double & latitude);
     Edge* addEdge(Vertex* dest, double w);
     bool removeEdge(const std::string& in);
     void removeOutgoingEdges();
@@ -22,7 +22,8 @@ public:
     bool operator<(const Vertex& vertex) const;
 
     std::string getInfo() const;
-    int getType() const; //water reservoirs-0; pumping stations-1 ; delivery sites-2
+    double getLong() const;
+    double getLat() const;
     std::vector<Edge*> getAdj() const;
     bool isVisited() const;
     bool isProcessing() const;
@@ -42,6 +43,8 @@ public:
 
 protected:
     std::string info;
+    double longitude;
+    double latitude;
     std::vector<Edge*> adj;
     int type_;
     bool visited;
@@ -82,7 +85,7 @@ protected:
 class Graph {
 public:
     Vertex* findVertex(const std::string& in) const;
-    bool addVertex(const std::string& in, const int type);
+    bool addVertex(const std::string& in, const double & longitude, const double & latitude);
     bool removeVertex(const std::string& in);
     bool addEdge(const std::string& source, const std::string& dest, double w);
     bool removeEdge(const std::string& source, const std::string& dest);

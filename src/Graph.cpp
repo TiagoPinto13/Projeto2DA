@@ -1,7 +1,7 @@
 
 #include "../headerFiles//Graph.h"
 
-Vertex::Vertex(const std::string& in, const int type) : type_(type), info(in), visited(false), processing(false), indegree(0), dist(0), path(nullptr), queueIndex(0) {}
+Vertex::Vertex(const std::string& in, const double& longitude_, const double& latitude_) : longitude(longitude_), latitude(latitude_), info(in), visited(false), processing(false), indegree(0), dist(0), path(nullptr), queueIndex(0) {}
 
 /**
  * @brief Adds an edge from this vertex to the destination vertex with the given weight.
@@ -207,16 +207,7 @@ void Vertex::setIndegree(unsigned int indegree) {
     this->indegree = indegree;
 }
 
-/**
- * @brief Gets the type of this vertex.
- *
- * @return The type of this vertex.
- *
- * @complexity Time Complexity: O(1)
- */
-int Vertex::getType() const {
-    return type_;
-}
+
 
 /**
  * @brief Sets the distance of this vertex.
@@ -259,6 +250,14 @@ void Vertex::deleteEdge(Edge* edge) {
         }
     }
     delete edge;
+}
+
+double Vertex::getLong() const {
+    return longitude;
+}
+
+double Vertex::getLat() const {
+    return latitude;
 }
 
 /**
@@ -399,11 +398,11 @@ Vertex* Graph::findVertex(const std::string& in) const {
  *
  * @complexity Time Complexity: O(1) on average, O(n) in worst case, where n is the number of vertices in the graph.
  */
-bool Graph::addVertex(const std::string& in, const int type) {
+bool Graph::addVertex(const std::string& in, const double& longitude, const double& latitude) {
     if (findVertex(in) != nullptr) {
         return false;
     }
-    Vertex* vertex = new Vertex(in,type);
+    Vertex* vertex = new Vertex(in, longitude, latitude);
     vertexSet.push_back(vertex);
     vertexMap[in] = vertex;
     return true;
