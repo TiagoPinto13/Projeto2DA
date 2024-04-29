@@ -109,3 +109,67 @@ Graph Data::getNetwork() {
 std::map<std::string, std::string> Data::getTourismLabels() {
     return tourismLabels;
 }
+
+std::vector<Vertex*> Data::backtrackingTSP() {
+    bestTour.clear();
+    bestCost = std::numeric_limits<double>::max();
+
+    std::vector<Vertex*> currentTour;
+
+    Vertex* v = network_.findVertex("0");
+    currentTour.push_back(v);
+    v->setVisited(true);
+
+    backtrack(currentTour, 0);
+
+    for (Vertex* vertex : bestTour) {
+        vertex->setVisited(false);
+    }
+
+    return bestTour;
+}
+
+void Data::backtrack(std::vector<Vertex*>& currentTour, double currentCost) {
+    if (currentTour.size() == network_.getVertexSet().size()) {
+        double tourCost = calculateTourCost(currentTour);
+        if (tourCost < bestCost) {
+            bestTour = currentTour;
+            bestCost = tourCost;
+        }
+        return;
+    }
+
+
+    Vertex* lastVertex = currentTour.back();
+    for (Edge* edge : lastVertex->getAdj()) {
+        Vertex* neighbor = edge->getDest();
+        if (!neighbor->isVisited()) {
+            currentTour.push_back(neighbor);
+            neighbor->setVisited(true);
+            backtrack(currentTour, currentCost + edge->getWeight());
+            neighbor->setVisited(false);
+            currentTour.pop_back();
+        }
+    }
+}
+double Data::calculateTourCost(const vector<Vertex*>& tour) const {
+    double cost = 0;
+
+    for (size_t i = 0; i < tour.size() - 1; ++i) {
+        Vertex* v1 = tour[i];
+        Vertex* v2 = tour[i + 1];
+
+        for (Edge* edge : v1->getAdj()) {
+            if (edge->getDest() == v2) {
+                cost += edge->getWeight();
+                break;
+            }
+        }
+    }
+    return cost;
+}
+
+double Data::getCost() {
+    return bestCost;
+}
+

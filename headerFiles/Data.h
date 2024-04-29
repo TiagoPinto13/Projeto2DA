@@ -14,12 +14,20 @@ class Data {
 public:
     Data() = default;
     void readNodes(std::string nodeFilePath);
-    void readEdges(bool realWorldGraphs, std::string edgesFilePath); //bool to skip the first line, since in the realWorldGraphs there's a 1st line to skip
-    void parseTOY(bool tourismCSV, std::string edgesFilePath); //bool to store the names of locals only present in the tourismCSV
+    void readEdges(bool realWorldGraphs, std::string edgesFilePath);
+    void parseTOY(bool tourismCSV, std::string edgesFilePath);
     Graph getNetwork();
+    double getCost();
     std::map<std::string,std::string> getTourismLabels();
 
-private:
+    std::vector<Vertex*> backtrackingTSP();
+    double calculateTourCost(const std::vector<Vertex*>& tour) const;
+    void backtrack(std::vector<Vertex*>& currentTour, double currentCost);
+
+        private:
+    std::vector<Vertex*> bestTour;
+    double bestCost;
+
     bool tourism=false;
     Graph network_;
     std::map<std::string,std::string> tourismLabels;
