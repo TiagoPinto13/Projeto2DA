@@ -1,10 +1,12 @@
 #include <iostream>
-#include <chrono> // Include chrono for time measurement
+#include <chrono>
 #include "headerFiles/Data.h"
 #include "headerFiles/Graph.h"
+#include "headerFiles/Menu.h"
+
 
 int main() {
-    Data data;
+    /*Data data;
     Data data2;
 
     data.readNodes("../dataset/Real-world Graphs/Real-world Graphs/graph1/nodes.csv");
@@ -28,6 +30,8 @@ int main() {
     std::chrono::duration<double> duration2 = end2 - start2;
 
     std::cout << "Cluster Approximation: " << data2.getClusterTourCost() << " " << data2.getClusterTour().size() << " Time taken: " << duration2.count() << " seconds" << std::endl;
-
+    */
+    Menu menu;
+    menu.drawMenu();
     return 0;
 }
