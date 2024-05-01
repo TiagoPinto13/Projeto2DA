@@ -3,6 +3,7 @@
 //
 #include "../headerFiles/Data.h"
 #include <fstream>
+#include <cmath>
 #include <sstream>
 using namespace std;
 
@@ -173,3 +174,158 @@ double Data::getCost() {
     return bestCost;
 }
 
+double haversineDistance(double lat1, double lon1, double lat2, double lon2){
+    lat1 *= M_PI / 180.0;
+    lon1 *= M_PI / 180.0;
+    lat2 *= M_PI / 180.0;
+    lon2 *= M_PI / 180.0;
+
+    const double EARTHRADIUS = 6371.0;
+
+    double dLat = lat2 - lat1;
+    double dLon = lon2 - lon1;
+    double a = std::sin(dLat / 2) * std::sin(dLat / 2) +
+               std::cos(lat1) * std::cos(lat2) *
+               std::sin(dLon / 2) * std::sin(dLon / 2);
+    double c = 2 * std::atan2(std::sqrt(a), std::sqrt(1 - a));
+    return EARTHRADIUS * c;
+}
+
+Vertex* Data::findNearestNeighbor(Vertex* v) {
+    Vertex* nearestNeighbor = nullptr;
+    double minDistance = std::numeric_limits<double>::max();
+    for (Edge* edge : v->getAdj()) {
+        Vertex* neighbor = edge->getDest();
+        if (!neighbor->isVisited()) {
+            double distance = edge->getWeight();
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestNeighbor = neighbor;
+            }
+        }
+    }
+
+    return nearestNeighbor;
+}
+
+void Data::triangularHeuristicAproximation(const std::string& startNodeId) {
+    aproximation_tour_.clear();
+    aproximation_tourCost_ = 0.0;
+
+    Vertex* startVertex = network_.findVertex(startNodeId);
+    if (!startVertex) {
+        std::cerr << "Start node not found in the graph.\n";
+        return;
+    }
+
+    aproximation_tour_.push_back(startVertex);
+    startVertex->setVisited(true);
+    while (aproximation_tour_.size() < network_.getVertexSet().size()) {
+        Vertex* lastVertex = aproximation_tour_.back();
+        Vertex* nearestNeighbor = findNearestNeighbor(lastVertex);
+        if (nearestNeighbor) {
+            nearestNeighbor->setVisited(true);
+            aproximation_tour_.push_back(nearestNeighbor);
+            for (Edge* edge : lastVertex->getAdj()) {
+                if (edge->getDest() == nearestNeighbor) {
+                    aproximation_tourCost_ += edge->getWeight();
+                    break;
+                }
+            }
+        }else{
+            break;
+        }
+    }
+    for (Edge* edge : startVertex->getAdj()) {
+        if (edge->getDest() == aproximation_tour_.back()) {
+            aproximation_tourCost_ += edge->getWeight();
+            break;
+        }
+    }
+    aproximation_tour_.push_back(startVertex);
+}
+
+std::vector<Vertex*> Data::getAproximationTour() {
+    return aproximation_tour_;
+}
+
+double Data::getAproximationTourCost() {
+    return aproximation_tourCost_;
+}
+
+void Data::clusterApproximationTSP(const string& startNodeId){
+    const auto& vertices = network_.getVertexSet();
+    unordered_set<Vertex*> clusters;
+
+    for (const auto& vertex : vertices) {
+        clusters.insert(vertex);
+    }
+
+    cluster_tour_.clear();
+    cluster_tourCost_ = 0.0;
+
+    Vertex* startVertex = network_.findVertex(startNodeId);
+    if (!startVertex) {
+        cerr << "Start node not found in the graph.\n";
+        return;
+    }
+
+    cluster_tour_.push_back(startVertex);
+    startVertex->setVisited(true);
+
+    while (!clusters.empty()) {
+        Vertex* lastVertex = cluster_tour_.back();
+        Vertex* nearestNeighbor = findNearestNeighborInCluster(lastVertex, clusters);
+
+        if (nearestNeighbor) {
+            nearestNeighbor->setVisited(true);
+            cluster_tour_.push_back(nearestNeighbor);
+
+            for (Edge* edge : lastVertex->getAdj()) {
+                if (edge->getDest() == nearestNeighbor) {
+                    cluster_tourCost_ += edge->getWeight();
+                    break;
+                }
+            }
+
+            clusters.erase(nearestNeighbor);
+        } else {
+            break;
+        }
+    }
+
+    for (Edge* edge : startVertex->getAdj()) {
+        if (edge->getDest() == cluster_tour_.back()) {
+            cluster_tourCost_ += edge->getWeight();
+            break;
+        }
+    }
+
+    cluster_tour_.push_back(startVertex);
+}
+
+Vertex* Data::findNearestNeighborInCluster(Vertex* v, const unordered_set<Vertex*>& cluster) {
+    Vertex* nearestNeighbor = nullptr;
+    double minDistance = numeric_limits<double>::max();
+
+    for (Edge* edge : v->getAdj()) {
+        Vertex* neighbor = edge->getDest();
+        if (!neighbor->isVisited() && cluster.count(neighbor)) {
+            double distance = edge->getWeight();
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestNeighbor = neighbor;
+            }
+        }
+    }
+
+    return nearestNeighbor;
+}
+
+vector<Vertex*> Data::getClusterTour() {
+    return cluster_tour_;
+}
+
+double Data::getClusterTourCost() {
+    return cluster_tourCost_;
+}
