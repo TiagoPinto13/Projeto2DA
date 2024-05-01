@@ -14,4 +14,6 @@ add_executable(proj2DA
         main.cpp
         headerFiles/Data.h
         src/Data.cpp
+        headerFiles/Menu.h
+        src/Menu.cpp
 )
