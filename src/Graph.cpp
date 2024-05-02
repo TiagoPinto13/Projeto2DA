@@ -207,6 +207,27 @@ void Vertex::setIndegree(unsigned int indegree) {
     this->indegree = indegree;
 }
 
+/**
+ * @brief Sets the parent of this vertex.
+ *
+ * @param parent The parent to set.
+ *
+ * @complexity Time Complexity: O(1)
+ */
+void Vertex::setParent(Vertex* parent) {
+    this->parent_ = parent;
+}
+
+/**
+ * @brief Gets the parent of this vertex.
+ *
+ * @return The parent of this vertex.
+ *
+ * @complexity Time Complexity: O(1)
+ */
+Vertex* Vertex::getParent() const {
+    return parent_;
+}
 
 
 /**

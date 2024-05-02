@@ -89,6 +89,4 @@ void MutablePriorityQueue<T>::set(unsigned i, T * x) {
     x->queueIndex = i;
 }
 
-
-
 #endif //PROJETO1DA_MUTABLEPRIORITYQUEUE_H

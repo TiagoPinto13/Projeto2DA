@@ -18,6 +18,8 @@ public:
     Edge* addEdge(Vertex* dest, double w);
     bool removeEdge(const std::string& in);
     void removeOutgoingEdges();
+    void setParent(Vertex* parent);
+    Vertex* getParent() const;
 
     bool operator<(const Vertex& vertex) const;
 
@@ -53,6 +55,7 @@ protected:
     double dist;
     Edge* path;
     std::vector<Edge*> incoming;
+    Vertex* parent_;
 
     int queueIndex;
     void deleteEdge(Edge* edge);

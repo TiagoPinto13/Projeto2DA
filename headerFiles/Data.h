@@ -34,6 +34,10 @@ public:
     Vertex* findNearestNeighborInCluster(Vertex* v, const std::unordered_set<Vertex*>& cluster);
     std::vector<Vertex*> getClusterTour();
     double getClusterTourCost();
+    void preorderTraversalMST(Vertex* u);
+    void mstApproximationTSP(const std::string& startNodeId);
+    std::vector<Vertex*> getMSTTour();
+    double getMSTTourCost();
 
 private:
     std::vector<Vertex*> bestTour;
@@ -44,6 +48,9 @@ private:
 
     std::vector<Vertex*> cluster_tour_;
     double cluster_tourCost_;
+
+    std::vector<Vertex*> mst_tour_;
+    double mst_tourCost_;
 
     bool tourism=false;
     Graph network_;

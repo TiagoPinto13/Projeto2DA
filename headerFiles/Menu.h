@@ -22,6 +22,8 @@ public:
     void drawBacktracking(std::string vertex_id);
     void drawTriangular(std::string vertex_id);
     void drawCluster(std::string vertex_id);
+    void drawMST(std::string vertex_id);
+    void drawApproximationAnalysis(std::string vertex_id);
 
 private:
     Data data_;
