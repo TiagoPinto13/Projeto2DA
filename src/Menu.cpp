@@ -199,9 +199,6 @@ void Menu::drawApproximationAnalysis(std::string vertex_id) {
     cout << "│ " << left << setw(12) << "Time taken: " << right << left <<  setw(37) << to_string(duration.count()) +  " seconds" << "│" << right << endl;
     cout << "│" << setw(53) << "│" << endl;
 
-    data_.readNodes("../dataset/Real-world Graphs/Real-world Graphs/graph1/nodes.csv");
-    data_.readEdges(true,"../dataset/Real-world Graphs/Real-world Graphs/graph1/edges.csv");
-
     auto start2 = chrono::high_resolution_clock::now();
     data_.clusterApproximationTSP(vertex_id);
     auto end2 = chrono::high_resolution_clock::now();
@@ -213,9 +210,6 @@ void Menu::drawApproximationAnalysis(std::string vertex_id) {
     cout << "│ " << left << setw(12) << "Tour size: " << right << left << setw(36) << data_.getClusterTour().size() << right << " │" << endl;
     cout << "│ " << left << setw(12) << "Time taken: " << right << left <<  setw(37) << to_string(duration2.count()) +  " seconds" << "│" << right << endl;
     cout << "│" << setw(53) << "│" << endl;
-
-    data_.readNodes("../dataset/Real-world Graphs/Real-world Graphs/graph1/nodes.csv");
-    data_.readEdges(true,"../dataset/Real-world Graphs/Real-world Graphs/graph1/edges.csv");
 
     auto start3 = chrono::high_resolution_clock::now();
     data_.mstApproximationTSP(vertex_id);
