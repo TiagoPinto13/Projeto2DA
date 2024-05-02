@@ -5,6 +5,12 @@
 #include <fstream>
 #include <cmath>
 #include <sstream>
+#include <iostream>
+#include <algorithm>
+#include <queue>
+#include <limits>
+#include "../headerFiles/MutablePriorityQueue.h"
+
 using namespace std;
 
 
@@ -329,3 +335,59 @@ vector<Vertex*> Data::getClusterTour() {
 double Data::getClusterTourCost() {
     return cluster_tourCost_;
 }
+
+
+void Data::mstApproximationTSP(const string& startNodeId) {
+    mst_tour_.clear();
+    mst_tourCost_ = 0.0;
+
+    Vertex* startVertex = network_.findVertex(startNodeId);
+    if (!startVertex) {
+        cerr << "Start node not found in the graph.\n";
+        return;
+    }
+
+    vector<bool> visited(network_.getVertexSet().size(), false); // Track visited vertices
+    MutablePriorityQueue<Vertex> pq;
+
+    pq.insert(startVertex);
+    visited[stoi(startVertex->getInfo())] = true; // Mark start vertex as visited
+
+    while (!pq.empty()) {
+        Vertex* u = pq.extractMin();
+
+        for (Edge* edge : u->getAdj()) {
+            Vertex* v = edge->getDest();
+            double weight = edge->getWeight();
+            int vIndex = stoi(v->getInfo());
+            if (!visited[vIndex]) {
+                v->setParent(u); // Set parent pointer
+                pq.insert(v);
+                visited[vIndex] = true;
+            }
+        }
+    }
+
+    preorderTraversalMST(startVertex);
+    mst_tourCost_ = calculateTourCost(mst_tour_);
+}
+
+void Data::preorderTraversalMST(Vertex* u) {
+    mst_tour_.push_back(u);
+    for (Edge* edge : u->getAdj()) {
+        Vertex* v = edge->getDest();
+        if (v->getParent() == u) { // Check if v is connected to u
+            preorderTraversalMST(v);
+        }
+    }
+}
+
+
+vector<Vertex*> Data::getMSTTour() {
+    return mst_tour_;
+}
+
+double Data::getMSTTourCost() {
+    return mst_tourCost_;
+}
+
