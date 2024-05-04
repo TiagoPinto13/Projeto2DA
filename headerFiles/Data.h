@@ -1,10 +1,5 @@
-//
-// Created by antero on 25-04-2024.
-//
-
 #ifndef PROJ2DA_DATA_H
 #define PROJ2DA_DATA_H
-
 
 #include "Graph.h"
 #include <string>
@@ -38,6 +33,9 @@ public:
     void mstApproximationTSP(const std::string& startNodeId);
     std::vector<Vertex*> getMSTTour();
     double getMSTTourCost();
+    std::vector<std::string> tsp_subgraph(const Graph& graph, std::string start);
+    std::vector<std::string> merge_tours(const std::vector<std::vector<std::string>>& tours);
+    std::vector<std::string> tsp_real_world(const std::string& start_node);
 
 private:
     std::vector<Vertex*> bestTour;

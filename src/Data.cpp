@@ -9,12 +9,13 @@
 #include <algorithm>
 #include <queue>
 #include <limits>
+#include <random>
 #include "../headerFiles/MutablePriorityQueue.h"
 
 using namespace std;
 
 
-void Data::readNodes(std::string nodeFilePath) {
+void Data::readNodes(string nodeFilePath) {
     ifstream nodesFile(nodeFilePath);
     if(nodesFile.fail()){
         ostringstream error_message;
@@ -30,13 +31,13 @@ void Data::readNodes(std::string nodeFilePath) {
     getline(nodesFile, latitude_str, '\n')) {
 
 
-        double latitude = std::stod(latitude_str);
-        double longitude = std::stod(longitude_str);
+        double latitude = stod(latitude_str);
+        double longitude = stod(longitude_str);
 
         network_.addVertex(id_str, longitude, latitude);
     }
 }
-void Data::readEdges(bool realWorldGraphs, std::string edgesFilePath) {  //bool to skip the first line, since in the realWorldGraphs there's a 1st line to skip
+void Data::readEdges(bool realWorldGraphs, string edgesFilePath) {  //bool to skip the first line, since in the realWorldGraphs there's a 1st line to skip
     ifstream edgesFile(edgesFilePath);
     if(edgesFile.fail()){
         ostringstream error_message;
@@ -54,13 +55,13 @@ void Data::readEdges(bool realWorldGraphs, std::string edgesFilePath) {  //bool 
     while(getline(edgesFile, c1, ','), getline(edgesFile, c2, ','),
             getline(edgesFile, c3, '\n')) {
 
-        double weight = std::stod(c3);
+        double weight = stod(c3);
 
         network_.addEdge(c1, c2, weight);
     }
 }
 
-void Data::parseTOY(bool tourismCSV, std::string edgesFilePath) {  //bool to store the names of locals only present in the tourismCSV
+void Data::parseTOY(bool tourismCSV, string edgesFilePath) {  //bool to store the names of locals only present in the tourismCSV
     ifstream edgesFile(edgesFilePath);
     if(edgesFile.fail()){
         ostringstream error_message;
@@ -90,7 +91,7 @@ void Data::parseTOY(bool tourismCSV, std::string edgesFilePath) {  //bool to sto
             if (!(tourismLabels.find(origem) != tourismLabels.end() && tourismLabels.find(destino) != tourismLabels.end())) {
                 tourismLabels[origem] = labelOrigem;
 
-                labelDestino.erase(std::remove(labelDestino.begin(), labelDestino.end(), '\r'), labelDestino.end());
+                labelDestino.erase(remove(labelDestino.begin(), labelDestino.end(), '\r'), labelDestino.end());
                 tourismLabels[destino] = labelDestino;
             }
         }
@@ -99,7 +100,7 @@ void Data::parseTOY(bool tourismCSV, std::string edgesFilePath) {  //bool to sto
             getline(edgesFile, distancia, '\n');
         }
 
-        double weight = std::stod(distancia);
+        double weight = stod(distancia);
 
         if(!network_.addEdge(origem, destino, weight)) {
             network_.addVertex(origem,0,0);
@@ -113,15 +114,15 @@ Graph Data::getNetwork() {
     return network_;
 }
 
-std::map<std::string, std::string> Data::getTourismLabels() {
+map<string, string> Data::getTourismLabels() {
     return tourismLabels;
 }
 
-std::vector<Vertex*> Data::backtrackingTSP() {
+vector<Vertex*> Data::backtrackingTSP() {
     bestTour.clear();
-    bestCost = std::numeric_limits<double>::max();
+    bestCost = numeric_limits<double>::max();
 
-    std::vector<Vertex*> currentTour;
+    vector<Vertex*> currentTour;
 
     Vertex* v = network_.findVertex("0");
     currentTour.push_back(v);
@@ -136,7 +137,7 @@ std::vector<Vertex*> Data::backtrackingTSP() {
     return bestTour;
 }
 
-void Data::backtrack(std::vector<Vertex*>& currentTour, double currentCost) {
+void Data::backtrack(vector<Vertex*>& currentTour, double currentCost) {
     if (currentTour.size() == network_.getVertexSet().size()) {
         double tourCost = calculateTourCost(currentTour);
         if (tourCost < bestCost) {
@@ -190,16 +191,16 @@ double haversineDistance(double lat1, double lon1, double lat2, double lon2){
 
     double dLat = lat2 - lat1;
     double dLon = lon2 - lon1;
-    double a = std::sin(dLat / 2) * std::sin(dLat / 2) +
-               std::cos(lat1) * std::cos(lat2) *
-               std::sin(dLon / 2) * std::sin(dLon / 2);
-    double c = 2 * std::atan2(std::sqrt(a), std::sqrt(1 - a));
+    double a = sin(dLat / 2) * sin(dLat / 2) +
+               cos(lat1) * cos(lat2) *
+               sin(dLon / 2) * sin(dLon / 2);
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
     return EARTHRADIUS * c;
 }
 
 Vertex* Data::findNearestNeighbor(Vertex* v) {
     Vertex* nearestNeighbor = nullptr;
-    double minDistance = std::numeric_limits<double>::max();
+    double minDistance = numeric_limits<double>::max();
     for (Edge* edge : v->getAdj()) {
         Vertex* neighbor = edge->getDest();
         if (!neighbor->isVisited()) {
@@ -214,13 +215,13 @@ Vertex* Data::findNearestNeighbor(Vertex* v) {
     return nearestNeighbor;
 }
 
-void Data::triangularHeuristicAproximation(const std::string& startNodeId) {
+void Data::triangularHeuristicAproximation(const string& startNodeId) {
     aproximation_tour_.clear();
     aproximation_tourCost_ = 0.0;
 
     Vertex* startVertex = network_.findVertex(startNodeId);
     if (!startVertex) {
-        std::cerr << "Start node not found in the graph.\n";
+        cerr << "Start node not found in the graph.\n";
         return;
     }
 
@@ -251,7 +252,7 @@ void Data::triangularHeuristicAproximation(const std::string& startNodeId) {
     aproximation_tour_.push_back(startVertex);
 }
 
-std::vector<Vertex*> Data::getAproximationTour() {
+vector<Vertex*> Data::getAproximationTour() {
     return aproximation_tour_;
 }
 
@@ -391,3 +392,103 @@ double Data::getMSTTourCost() {
     return mst_tourCost_;
 }
 
+
+
+
+//TSP REAL WORLD
+
+    vector<string> Data::merge_tours(const vector<vector<string>>& tours) {
+        vector<string> merged_tour;
+        for (const auto& tour : tours) {
+            if (merged_tour.empty()) {
+                merged_tour = tour;
+            } else {
+                for (size_t i = 0; i < merged_tour.size(); ++i) {
+                    if (merged_tour[i] == tour[0]) {
+                        merged_tour.insert(merged_tour.begin() + i, tour.begin() + 1, tour.end());
+                        break;
+                    }
+                }
+            }
+        }
+        return merged_tour;
+    }
+
+    vector<string> Data::tsp_subgraph(const Graph& subgraph, string start) {
+        vector<string> tour;
+        tour.push_back(start);
+        unordered_set<string> unvisited;
+        for (const auto& vertex : subgraph.getVertexSet()) {
+            unvisited.insert(vertex->getInfo());
+        }
+        unvisited.erase(start);
+        string current_node = start;
+        while (!unvisited.empty()) {
+            vector<Edge*> adj;
+            for (auto temp : subgraph.getVertexSet()) {
+                if (temp->getInfo() == current_node) {
+                    adj = temp->getAdj();
+                    break;
+                }
+            }
+            string next_node = *min_element(unvisited.begin(), unvisited.end(),
+                                                      [&adj, &subgraph, &current_node](const string& node1, const string& node2) {
+                                                          for (const auto& edge : adj) {
+                                                              if (edge->getDest()->getInfo() == node1 && subgraph.getEdgeWeight(current_node, node1) < numeric_limits<double>::infinity()) {
+                                                                  return true;
+                                                              }
+                                                              if (edge->getDest()->getInfo() == node2 && subgraph.getEdgeWeight(current_node, node2) < numeric_limits<double>::infinity()) {
+                                                                  return false;
+                                                              }
+                                                          }
+                                                          return false;
+                                                      });
+            tour.push_back(next_node);
+            unvisited.erase(next_node);
+            current_node = next_node;
+        }
+        tour.push_back(start);
+        return tour;
+    }
+
+vector<string> Data::tsp_real_world(const string& start_node) {
+    vector<vector<string>> subgraph_tours;
+    for (const auto& vertex : network_.getVertexSet()) {
+        Graph subgraph;
+        subgraph.addVertex(vertex->getInfo(), vertex->getLong(), vertex->getLat());
+        for (const Edge* edge : vertex->getAdj()) {
+            string dest_node = edge->getDest()->getInfo();
+            double weight = edge->getWeight();
+            subgraph.addEdge(vertex->getInfo(), dest_node, weight);
+        }
+        if (subgraph.getVertexSet().size() > 1) {
+            subgraph_tours.push_back(tsp_subgraph(subgraph, vertex->getInfo()));
+        }
+    }
+
+    vector<string> tour = merge_tours(subgraph_tours);
+
+    // Verifica se o tour é válido
+    if (tour.size() == network_.getVertexSet().size() + 1 && tour.front() == tour.back() && tour.front() == start_node) {
+        return tour;
+    } else {
+        // Se o tour não for válido, retorna um tour vazio
+        return vector<string>();
+    }
+}
+
+/*
+ Advantages of this approach:
+
+Handles real-world graphs that are not fully connected.
+Allows arbitrary starting points specified by the user.
+Employs scalable algorithms like DFS or BFS for subgraph identification.
+Utilizes heuristic methods for TSP within subgraphs, balancing efficiency and optimality.
+
+Disadvantages:
+
+May not guarantee an optimal solution due to the heuristic nature of TSP algorithms.
+Complexity increases with the number of disconnected components in the graph.
+Requires careful handling of merging subgraph tours to minimize tour length.
+
+ */

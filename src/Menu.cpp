@@ -1,6 +1,8 @@
 #include "Menu.h"
 #include <iomanip>
 #include <iostream>
+#include <chrono>
+
 using namespace std;
 
 Menu::Menu() {
@@ -34,6 +36,7 @@ void Menu::drawMenu() {
         cout << "│     [3] Cluster Approximation Heuristic          │" << endl;
         cout << "│     [4] MST Approximation Heuristic              │" << endl;
         cout << "│     [5] Approximation Heuristic Analysis         │" << endl;
+        cout << "│     [6] TSP in Real World                        │" << endl;
         cout << "│     [Q] Exit                                     │" << endl;
         cout << "│" << setw(53) << "│" << endl;
         drawBottom();
@@ -75,6 +78,14 @@ void Menu::drawMenu() {
                 drawApproximationAnalysis(vertex_id);
                 break;
             }
+            case '6':{
+                string vertex_id;
+                cout << "Enter the vertex id: ";
+                cin >> vertex_id;
+                drawTspRealWorld(vertex_id);
+                break;
+            }
+
             case 'Q':
             case 'q': {
                 cout << "Exiting..." << endl;
@@ -222,5 +233,47 @@ void Menu::drawApproximationAnalysis(std::string vertex_id) {
     cout << "│ " << left << setw(12) << "Tour size: " << right << left << setw(36) << data_.getMSTTour().size() << right << " │" << endl;
     cout << "│ " << left << setw(12) << "Time taken: " << right << left <<  setw(37) << to_string(duration3.count()) +  " seconds" << "│" << right << endl;
     cout << "│" << setw(53) << "│" << endl;
+    cout << "└──────────────────────────────────────────────────┘" << endl;
+}
+
+double Menu::calculate_tour_cost(const std::vector<std::string>& tour) {
+    double total_cost = 0.0;
+    for (size_t i = 0; i < tour.size() - 1; ++i) {
+        double edge_weight = data_.getNetwork().getEdgeWeight(tour[i], tour[i + 1]);
+        total_cost += edge_weight;
+    }
+    return total_cost;
+}
+
+void Menu::drawTspRealWorld(std::string vertex_id) {
+    // Lê os nós e arestas do conjunto de dados
+    data_.readNodes("../dataset/Real-world Graphs/Real-world Graphs/graph1/nodes.csv");
+    data_.readEdges(true,"../dataset/Real-world Graphs/Real-world Graphs/graph1/edges.csv");
+
+    auto start = chrono::high_resolution_clock::now();
+    std::vector<std::string> tour = data_.tsp_real_world(vertex_id);
+    auto end = chrono::high_resolution_clock::now();
+    chrono::duration<double> duration = end - start;
+
+    cout << "┌─ TSP in Real World ──────────────────────────────┐" << endl;
+    cout << "│                                                  │" << endl;
+    cout << "│ Start Node:                                      │" << endl;
+
+    if (!tour.empty()) {
+        cout << "│ " << left << setw(12) << "Time taken:" << right << left << setw(37) << to_string(duration.count()) +  " seconds" << "│" << endl;
+
+        cout << "│ " << left << setw(12) << "Tour Cost:" << left << setw(39) << calculate_tour_cost(tour) << "│" << endl;
+        cout << "│ " << left << setw(12) << "Tour:" << left << setw(39) << "[";
+        for (size_t i = 0; i < tour.size(); ++i) {
+            cout << tour[i];
+            if (i < tour.size() - 1) {
+                cout << ", ";
+            }
+        }
+        cout << "]" << "│" << endl;
+    } else {
+        cout << "│ No feasible tour exists.                         │" << endl;
+    }
+    cout << "│                                                  │" << endl;
     cout << "└──────────────────────────────────────────────────┘" << endl;
 }

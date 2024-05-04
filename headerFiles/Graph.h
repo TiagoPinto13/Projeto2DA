@@ -106,6 +106,8 @@ public:
     bool isDAG() const;
     bool dfsIsDAG(Vertex* v) const;
     std::vector<std::string> topsort() const;
+    double getEdgeWeight(const std::string &source, const std::string &dest) const;
+
 
 protected:
     std::vector<Vertex*> vertexSet;
@@ -117,5 +119,6 @@ protected:
     int findVertexIdx(const std::string& in) const;
     void deleteMatrix(int** m, int n);
     void deleteMatrix(double** m, int n);
+
 };
 #endif

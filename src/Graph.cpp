@@ -802,6 +802,28 @@ void Graph::deleteMatrix(double** m, int n) {
 
 
 
+/**
+ * @brief Gets the weight of the edge between two vertices.
+ *
+ * @param source The information of the source vertex.
+ * @param dest The information of the destination vertex.
+ *
+ * @return The weight of the edge between the source and destination vertices, or infinity if no such edge exists.
+ *
+ * @complexity Time Complexity: O(E), where E is the number of edges adjacent to the source vertex.
+ */
+double Graph::getEdgeWeight(const std::string& source, const std::string& dest) const {
+    Vertex* srcVertex = findVertex(source);
+    if (srcVertex == nullptr) {
+        return std::numeric_limits<double>::infinity();
+    }
+    for (auto& e : srcVertex->getAdj()) {
+        if (e->getDest()->getInfo() == dest) {
+            return e->getWeight();
+        }
+    }
+    return std::numeric_limits<double>::infinity();
+}
 
 
 

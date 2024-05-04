@@ -24,9 +24,12 @@ public:
     void drawCluster(std::string vertex_id);
     void drawMST(std::string vertex_id);
     void drawApproximationAnalysis(std::string vertex_id);
-
+    void drawTspRealWorld(std::string basicString);
 private:
     Data data_;
+
+
+    double calculate_tour_cost(const std::vector<std::string> &tour);
 };
 
 #endif //PROJ2DA_MENU_H
