@@ -56,6 +56,7 @@ void Data::readEdges(bool realWorldGraphs, string edgesFilePath) {  //bool to sk
         double weight = stod(c3);
 
         network_.addEdge(c1, c2, weight);
+        network_.addEdge(c2, c1, weight);
     }
 }
 
@@ -105,6 +106,7 @@ void Data::parseTOY(bool tourismCSV, string edgesFilePath) {  //bool to store th
             network_.addVertex(destino,0,0);
             network_.addEdge(origem, destino, weight);
         }
+        network_.addEdge(destino, origem, weight);
     }
 }
 
