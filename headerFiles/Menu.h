@@ -19,7 +19,7 @@ public:
     void drawMenu(int option);
     void drawTop();
     void drawBottom();
-    void drawBacktracking(std::string vertex_id);
+    void drawBacktracking(/*std::string vertex_id*/); //diz no enunciado que é sempre com o vertex 0
     void drawTriangular(std::string vertex_id);
     void drawCluster(std::string vertex_id);
     void drawMST(std::string vertex_id);
