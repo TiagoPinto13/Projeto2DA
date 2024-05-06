@@ -7,10 +7,7 @@
 using namespace std;
 
 int main(){
-    Data d;
-    d.parseTOY(true, "../dataset/Toy-Graphs/Toy-Graphs/tourism.csv");
-    d.backtrackingTSP();
-    std::cout<<d.getCost();
-    for(auto v: d.getBestTour())
+    Menu menu;
+    menu.firstMenu();
     return 0;
 }

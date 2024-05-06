@@ -140,13 +140,11 @@ void Data::backtrackingTSP() {
     bestCost = numeric_limits<double>::max();
     vector<Vertex*> currentTour;
     Vertex* v = network_.findVertex("0");
-    v->setVisited(true);
+
 
     // Set visited to false for all vertices except the starting vertex
     for(auto vertex : network_.getVertexSet()) {
-        if (vertex != v) {
-            vertex->setVisited(false);
-        }
+        vertex->setVisited(false);
     }
 
     currentTour.push_back(v); // Start from vertex 0
@@ -154,7 +152,7 @@ void Data::backtrackingTSP() {
 }
 
 void Data::backtrack(vector<Vertex*>& currentTour, double currentCost) {
-    if (currentTour.size() == network_.getVertexSet().size()) {
+    if (currentTour.size() == network_.getVertexSet().size()+1 && currentTour.back() == currentTour.front()) {
         if (currentCost < bestCost) {
             bestTour = currentTour;
             bestCost = currentCost;
@@ -496,6 +494,10 @@ vector<string> Data::tsp_real_world(const string& start_node) {
 
 std::vector<Vertex *> Data::getBestTour() {
     return bestTour;
+}
+
+bool Data::isTourism() {
+    return tourism;
 }
 
 /*

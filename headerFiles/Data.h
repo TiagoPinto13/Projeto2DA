@@ -15,6 +15,7 @@ public:
     void parseTOY(bool tourismCSV, std::string edgesFilePath);
     Graph getNetwork();
     double getCost();
+    bool isTourism();
     std::vector<Vertex*> getBestTour();
     std::map<std::string,std::string> getTourismLabels();
 
