@@ -153,63 +153,63 @@ void Menu::drawMenu(int option) {
         data_.parseTOY(true,"../dataset/Toy-Graphs/Toy-Graphs/tourism.csv");
     }
     else if(option == 4){
-        data_.readNodes("../dataset/Real-world Graphs/Real-world Graphs/graph1/nodes.csv");
+        data_.readNodes("../dataset/Real-world Graphs/Real-world Graphs/graph1/nodes.csv", -1);
         data_.readEdges(true,"../dataset/Real-world Graphs/Real-world Graphs/graph1/edges.csv");
     }
     else if(option == 5){
-        data_.readNodes("../dataset/Real-world Graphs/Real-world Graphs/graph2/nodes.csv");
+        data_.readNodes("../dataset/Real-world Graphs/Real-world Graphs/graph2/nodes.csv", -1);
         data_.readEdges(true,"../dataset/Real-world Graphs/Real-world Graphs/graph2/edges.csv");
     }
     else if(option == 6){
-        data_.readNodes("../dataset/Real-world Graphs/Real-world Graphs/graph3/nodes.csv");
+        data_.readNodes("../dataset/Real-world Graphs/Real-world Graphs/graph3/nodes.csv", -1);
         data_.readEdges(true,"../dataset/Real-world Graphs/Real-world Graphs/graph3/edges.csv");
     }
     else if(option == 7){
-        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Connected_Graphs/nodes.csv");
+        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Connected_Graphs/nodes.csv", 25);
         data_.readEdges(false,"../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/edges_25.csv");
     }
     else if(option == 8){
-        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv");
+        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv", 50);
         data_.readEdges(false,"../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/edges_50.csv");
     }
     else if(option == 9){
-        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv");
+        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv", 75);
         data_.readEdges(false,"../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/edges_75.csv");
     }
     else if(option == 10){
-        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv");
+        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv", 100);
         data_.readEdges(false,"../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/edges_100.csv");
     }
     else if(option == 11){
-        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv");
+        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv", 200);
         data_.readEdges(false,"../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/edges_200.csv");
     }
     else if(option == 12){
-        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv");
+        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv", 300);
         data_.readEdges(false,"../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/edges_300.csv");
     }
     else if(option == 13){
-        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv");
+        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv", 400);
         data_.readEdges(false,"../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/edges_400.csv");
     }
     else if(option == 14){
-        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv");
+        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv", 500);
         data_.readEdges(false,"../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/edges_500.csv");
     }
     else if(option == 15){
-        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv");
+        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv", 600);
         data_.readEdges(false,"../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/edges_600.csv");
     }
     else if(option == 16){
-        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv");
+        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv", 700);
         data_.readEdges(false,"../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/edges_700.csv");
     }
     else if(option == 17){
-        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv");
+        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv", 800);
         data_.readEdges(false,"../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/edges_800.csv");
     }
     else if(option == 18){
-        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv");
+        data_.readNodes("../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/nodes.csv", 900);
         data_.readEdges(false,"../dataset/Extra_Fully_Connected_Graphs/Extra_Fully_Conected_Graphs/edges_900.csv");
     }
     char key;
@@ -292,7 +292,7 @@ void Menu::drawMenu(int option) {
 }
 
 void Menu::drawBacktracking(string vertex_id) {
-    data_.readNodes("../dataset/Real-world Graphs/Real-world Graphs/graph1/nodes.csv");
+    data_.readNodes("../dataset/Real-world Graphs/Real-world Graphs/graph1/nodes.csv",-1);
     data_.readEdges(true,"../dataset/Real-world Graphs/Real-world Graphs/graph1/edges.csv");
 
     auto start = chrono::high_resolution_clock::now();
