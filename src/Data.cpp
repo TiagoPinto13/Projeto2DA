@@ -13,7 +13,7 @@
 using namespace std;
 
 
-void Data::readNodes(string nodeFilePath) {
+void Data::readNodes(string nodeFilePath, int numberOfNodes) {
     ifstream nodesFile(nodeFilePath);
     if(nodesFile.fail()){
         ostringstream error_message;
@@ -24,16 +24,32 @@ void Data::readNodes(string nodeFilePath) {
     string id_str, longitude_str, latitude_str;
 
     getline(nodesFile, id_str);
+    if(numberOfNodes==-1) {
+        while(getline(nodesFile, id_str, ','), getline(nodesFile, longitude_str, ','),
+                getline(nodesFile, latitude_str, '\n')) {
 
-    while(getline(nodesFile, id_str, ','), getline(nodesFile, longitude_str, ','),
-    getline(nodesFile, latitude_str, '\n')) {
 
+            double latitude = stod(latitude_str);
+            double longitude = stod(longitude_str);
 
-        double latitude = stod(latitude_str);
-        double longitude = stod(longitude_str);
-
-        network_.addVertex(id_str, longitude, latitude);
+            network_.addVertex(id_str, longitude, latitude);
+        }
     }
+    else {
+        int nr = numberOfNodes;
+        while(nr!=0) {
+            nr--;
+            getline(nodesFile, id_str, ',');
+            getline(nodesFile, longitude_str, ',');
+            getline(nodesFile, latitude_str, '\n');
+
+            double latitude = stod(latitude_str);
+            double longitude = stod(longitude_str);
+
+            network_.addVertex(id_str, longitude, latitude);
+        }
+    }
+
 }
 void Data::readEdges(bool realWorldGraphs, string edgesFilePath) {  //bool to skip the first line, since in the realWorldGraphs there's a 1st line to skip
     ifstream edgesFile(edgesFilePath);

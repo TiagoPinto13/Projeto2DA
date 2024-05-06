@@ -10,7 +10,7 @@ class Data {
 public:
 
     Data() = default;
-    void readNodes(std::string nodeFilePath);
+    void readNodes(std::string nodeFilePath, int numberOfNodes);
     void readEdges(bool realWorldGraphs, std::string edgesFilePath);
     void parseTOY(bool tourismCSV, std::string edgesFilePath);
     Graph getNetwork();
