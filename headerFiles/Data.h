@@ -34,7 +34,7 @@ public:
     std::vector<Vertex*> getMSTTour();
     double getMSTTourCost();
     std::vector<std::string> tsp_subgraph(const Graph& graph, std::string start);
-    std::vector<std::string> merge_tours(const std::vector<std::vector<std::string>>& tours);
+    std::vector<std::string> merge_tours(const std::vector<std::vector<std::string> >& tours);
     std::vector<std::string> tsp_real_world(const std::string& start_node);
 
 private:
