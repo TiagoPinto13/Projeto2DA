@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <queue>
 #include <limits>
+#include <stack>
 
 using namespace std;
 
@@ -134,38 +135,35 @@ map<string, string> Data::getTourismLabels() {
     return tourismLabels;
 }
 
-vector<Vertex*> Data::backtrackingTSP() {
+void Data::backtrackingTSP() {
     bestTour.clear();
     bestCost = numeric_limits<double>::max();
-
     vector<Vertex*> currentTour;
-
     Vertex* v = network_.findVertex("0");
-    currentTour.push_back(v);
     v->setVisited(true);
 
-    backtrack(currentTour, 0);
-
-    for (Vertex* vertex : bestTour) {
-        vertex->setVisited(false);
+    // Set visited to false for all vertices except the starting vertex
+    for(auto vertex : network_.getVertexSet()) {
+        if (vertex != v) {
+            vertex->setVisited(false);
+        }
     }
 
-    return bestTour;
+    currentTour.push_back(v); // Start from vertex 0
+    backtrack(currentTour, 0);
 }
 
 void Data::backtrack(vector<Vertex*>& currentTour, double currentCost) {
     if (currentTour.size() == network_.getVertexSet().size()) {
-        double tourCost = calculateTourCost(currentTour);
-        if (tourCost < bestCost) {
+        if (currentCost < bestCost) {
             bestTour = currentTour;
-            bestCost = tourCost;
+            bestCost = currentCost;
         }
         return;
     }
 
-
     Vertex* lastVertex = currentTour.back();
-    for (Edge* edge : lastVertex->getAdj()) {
+    for (auto edge : lastVertex->getAdj()) {
         Vertex* neighbor = edge->getDest();
         if (!neighbor->isVisited()) {
             currentTour.push_back(neighbor);
@@ -176,6 +174,7 @@ void Data::backtrack(vector<Vertex*>& currentTour, double currentCost) {
         }
     }
 }
+
 double Data::calculateTourCost(const vector<Vertex*>& tour) const {
     double cost = 0;
 
@@ -493,6 +492,10 @@ vector<string> Data::tsp_real_world(const string& start_node) {
         // Se o tour não for válido, retorna um tour vazio
         return vector<string>();
     }
+}
+
+std::vector<Vertex *> Data::getBestTour() {
+    return bestTour;
 }
 
 /*

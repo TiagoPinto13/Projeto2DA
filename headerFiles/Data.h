@@ -15,11 +15,13 @@ public:
     void parseTOY(bool tourismCSV, std::string edgesFilePath);
     Graph getNetwork();
     double getCost();
+    std::vector<Vertex*> getBestTour();
     std::map<std::string,std::string> getTourismLabels();
 
-    std::vector<Vertex*> backtrackingTSP();
-    double calculateTourCost(const std::vector<Vertex*>& tour) const;
+    void backtrackingTSP();
     void backtrack(std::vector<Vertex*>& currentTour, double currentCost);
+
+    double calculateTourCost(const std::vector<Vertex*>& tour) const;
     double haversineDistance(double lat1, double lon1, double lat2, double lon2);
     Vertex* findNearestNeighbor(Vertex* v);
     void triangularHeuristicAproximation(const std::string& startNodeId);
@@ -36,6 +38,9 @@ public:
     std::vector<std::string> tsp_subgraph(const Graph& graph, std::string start);
     std::vector<std::string> merge_tours(const std::vector<std::vector<std::string> >& tours);
     std::vector<std::string> tsp_real_world(const std::string& start_node);
+
+
+    bool isInBestTour(Vertex* v);
 
 private:
     std::vector<Vertex*> bestTour;
