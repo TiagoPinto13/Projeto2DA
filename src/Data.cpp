@@ -9,8 +9,6 @@
 #include <algorithm>
 #include <queue>
 #include <limits>
-#include <random>
-#include "../headerFiles/MutablePriorityQueue.h"
 
 using namespace std;
 
@@ -397,7 +395,7 @@ double Data::getMSTTourCost() {
 
 //TSP REAL WORLD
 
-    vector<string> Data::merge_tours(const vector<vector<string>>& tours) {
+    vector<string> Data::merge_tours(const vector<vector<string> >& tours) {
         vector<string> merged_tour;
         for (const auto& tour : tours) {
             if (merged_tour.empty()) {
@@ -414,45 +412,47 @@ double Data::getMSTTourCost() {
         return merged_tour;
     }
 
-    vector<string> Data::tsp_subgraph(const Graph& subgraph, string start) {
-        vector<string> tour;
-        tour.push_back(start);
-        unordered_set<string> unvisited;
-        for (const auto& vertex : subgraph.getVertexSet()) {
-            unvisited.insert(vertex->getInfo());
-        }
-        unvisited.erase(start);
-        string current_node = start;
-        while (!unvisited.empty()) {
-            vector<Edge*> adj;
-            for (auto temp : subgraph.getVertexSet()) {
-                if (temp->getInfo() == current_node) {
-                    adj = temp->getAdj();
-                    break;
-                }
+vector<string> Data::tsp_subgraph(const Graph& subgraph, string start) {
+    vector<string> tour;
+    tour.push_back(start);
+    unordered_set<string> unvisited;
+    for (const auto& vertex : subgraph.getVertexSet()) {
+        unvisited.insert(vertex->getInfo());
+    }
+    unvisited.erase(start);
+    string current_node = start;
+    while (!unvisited.empty()) {
+        vector<Edge*> adj;
+        for (auto temp : subgraph.getVertexSet()) {
+            if (temp->getInfo() == current_node) {
+                adj = temp->getAdj();
+                break;
             }
-            string next_node = *min_element(unvisited.begin(), unvisited.end(),
-                                                      [&adj, &subgraph, &current_node](const string& node1, const string& node2) {
-                                                          for (const auto& edge : adj) {
-                                                              if (edge->getDest()->getInfo() == node1 && subgraph.getEdgeWeight(current_node, node1) < numeric_limits<double>::infinity()) {
-                                                                  return true;
-                                                              }
-                                                              if (edge->getDest()->getInfo() == node2 && subgraph.getEdgeWeight(current_node, node2) < numeric_limits<double>::infinity()) {
-                                                                  return false;
-                                                              }
-                                                          }
-                                                          return false;
-                                                      });
+        }
+        string next_node;
+        double min_weight = numeric_limits<double>::infinity();
+        for (const auto& edge : adj) {
+            string dest_info = edge->getDest()->getInfo();
+            if (unvisited.count(dest_info) && subgraph.getEdgeWeight(current_node, dest_info) < min_weight) {
+                min_weight = subgraph.getEdgeWeight(current_node, dest_info);
+                next_node = dest_info;
+            }
+        }
+        if (!next_node.empty()) {
             tour.push_back(next_node);
             unvisited.erase(next_node);
             current_node = next_node;
+        } else {
+            break;
         }
-        tour.push_back(start);
-        return tour;
     }
+    tour.push_back(start);
+    return tour;
+}
+
 
 vector<string> Data::tsp_real_world(const string& start_node) {
-    vector<vector<string>> subgraph_tours;
+    vector<vector<string> > subgraph_tours;
     for (const auto& vertex : network_.getVertexSet()) {
         Graph subgraph;
         subgraph.addVertex(vertex->getInfo(), vertex->getLong(), vertex->getLat());

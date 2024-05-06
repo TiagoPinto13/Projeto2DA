@@ -16,7 +16,7 @@
 class Menu {
 public:
     Menu();
-    void drawMenu();
+    void drawMenu(int option);
     void drawTop();
     void drawBottom();
     void drawBacktracking(std::string vertex_id);
@@ -25,6 +25,8 @@ public:
     void drawMST(std::string vertex_id);
     void drawApproximationAnalysis(std::string vertex_id);
     void drawTspRealWorld(std::string basicString);
+    void waitForEnter();
+    void firstMenu();
 private:
     Data data_;
 
