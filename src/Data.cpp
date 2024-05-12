@@ -500,6 +500,24 @@ bool Data::isTourism() {
     return tourism;
 }
 
+void Data::removeVertex(string id) {
+    if(network_.findVertex(id) != nullptr) {
+        network_.removeVertex(id);
+    }
+    else {
+        cerr << "Vertex not found in the graph.\n";
+    }
+}
+
+void Data::removeEdge(string id1, string id2) {
+    if(network_.findVertex(id1) != nullptr && network_.findVertex(id2) != nullptr) {
+        network_.removeEdge(id1, id2);
+    }
+    else {
+        cerr << "One or both vertices not found in the graph.\n";
+    }
+}
+
 /*
  Advantages of this approach:
 

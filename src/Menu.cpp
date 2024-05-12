@@ -225,6 +225,7 @@ void Menu::drawMenu(int option) {
         cout << "│     [5] Approximation Heuristic Analysis         │" << endl;
         cout << "│     [6] TSP in Real World                        │" << endl;
         cout << "│     [7] Change current dataset                   │" << endl;
+        cout << "│     [8] Remove Vertex/Edge                       │" << endl;
         cout << "│     [Q] Exit                                     │" << endl;
         cout << "│" << setw(53) << "│" << endl;
         drawBottom();
@@ -232,16 +233,17 @@ void Menu::drawMenu(int option) {
         cin >> key;
         switch (key) {
             case '1':{
-                /*string vertex_id;
-                cout << "Enter the vertex id: ";
-                cin >> vertex_id;*/
-                drawBacktracking(/*vertex_id*/);  //diz no enunciado que é sempre com o vertex 0
+                drawBacktracking();
                 break;
             }
             case '2': {
                 string vertex_id;
                 cout << "Enter the vertex id: ";
                 cin >> vertex_id;
+                if(data_.getNetwork().findVertex(vertex_id) == nullptr){
+                    cout << "Invalid vertex id" << endl;
+                    break;
+                }
                 drawTriangular(vertex_id);
                 break;
             }
@@ -249,6 +251,10 @@ void Menu::drawMenu(int option) {
                 string vertex_id;
                 cout << "Enter the vertex id: ";
                 cin >> vertex_id;
+                if(data_.getNetwork().findVertex(vertex_id) == nullptr){
+                    cout << "Invalid vertex id" << endl;
+                    break;
+                }
                 drawCluster(vertex_id);
                 break;
             }
@@ -256,6 +262,10 @@ void Menu::drawMenu(int option) {
                 string vertex_id;
                 cout << "Enter the vertex id: ";
                 cin >> vertex_id;
+                if(data_.getNetwork().findVertex(vertex_id) == nullptr){
+                    cout << "Invalid vertex id" << endl;
+                    break;
+                }
                 drawMST(vertex_id);
                 break;
             }
@@ -263,6 +273,10 @@ void Menu::drawMenu(int option) {
                 string vertex_id;
                 cout << "Enter the vertex id: ";
                 cin >> vertex_id;
+                if(data_.getNetwork().findVertex(vertex_id) == nullptr){
+                    cout << "Invalid vertex id" << endl;
+                    break;
+                }
                 drawApproximationAnalysis(vertex_id);
                 break;
             }
@@ -270,12 +284,20 @@ void Menu::drawMenu(int option) {
                 string vertex_id;
                 cout << "Enter the vertex id: ";
                 cin >> vertex_id;
+                if(data_.getNetwork().findVertex(vertex_id) == nullptr){
+                    cout << "Invalid vertex id" << endl;
+                    break;
+                }
                 drawTspRealWorld(vertex_id);
                 break;
             }
             case '7': {
                 flag = false;
                 firstMenu();
+                break;
+            }
+            case '8': {
+                drawRemoveVertexEdge();
                 break;
             }
             case 'Q':
@@ -291,7 +313,50 @@ void Menu::drawMenu(int option) {
     }
 }
 
-void Menu::drawBacktracking(/*string vertex_id*/) {
+void Menu::drawRemoveVertexEdge(){
+    char key;
+    bool flag = true;
+    while (flag) {
+        drawTop();
+        cout << "│" << setw(53) << "│" << endl;
+        cout << "│    Options:                                      │" << endl;
+        cout << "│     [1] Remove Vertex                            │" << endl;
+        cout << "│     [2] Remove Edge                              │" << endl;
+        cout << "│     [3] Back                                     │" << endl;
+        cout << "│" << setw(53) << "│" << endl;
+        drawBottom();
+        cout << "Choose an option: ";
+        cin >> key;
+        switch (key) {
+            case '1':{
+                string vertex_id;
+                cout << "Enter the vertex id: ";
+                cin >> vertex_id;
+                data_.removeVertex(vertex_id);
+                break;
+            }
+            case '2': {
+                string vertex_id1, vertex_id2;
+                cout << "Enter the first vertex id: ";
+                cin >> vertex_id1;
+                cout << "Enter the second vertex id: ";
+                cin >> vertex_id2;
+                data_.removeEdge(vertex_id1, vertex_id2);
+                break;
+            }
+            case '3': {
+                flag = false;
+                break;
+            }
+            default:
+                cout << "Invalid option" << endl;
+                break;
+        }
+    }
+
+}
+
+void Menu::drawBacktracking() {
 
     auto start = chrono::high_resolution_clock::now();
     data_.backtrackingTSP();
@@ -380,23 +445,8 @@ void Menu::drawMST(std::string vertex_id) {
 }
 
 void Menu::drawApproximationAnalysis(std::string vertex_id) {
-    /*data_.readNodes("../dataset/Real-world Graphs/Real-world Graphs/graph1/nodes.csv");
-    data_.readEdges(true,"../dataset/Real-world Graphs/Real-world Graphs/graph1/edges.csv");
-
-    auto start = chrono::high_resolution_clock::now();
-    data_.backtrackingTSP();
-    auto end = chrono::high_resolution_clock::now();
-
-    chrono::duration<double> duration = end - start;
-*/
     cout << "┌─ Approximation Heuristic Analysis ───────────────┐" << endl;
     cout << "│" << setw(53) << "│" << endl;
-/*
-    cout << "│  Backtracking Algorithm :                        │" << endl;
-    cout << "│ " << left << setw(12) << "Tour cost: " << right << left << setw(36) << data_.getCost() << right << " │" << endl;
-    cout << "│ " << left << setw(12) << "Time taken: " << right << left <<  setw(37) << to_string(duration.count()) +  " seconds" << "│" << right << endl;
-    cout << "│" << setw(53) << "│" << endl;
-*/
 
     auto start = chrono::high_resolution_clock::now();
     data_.triangularHeuristicAproximation(vertex_id);
