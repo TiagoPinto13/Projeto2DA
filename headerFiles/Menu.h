@@ -25,6 +25,7 @@ public:
     void drawMST(std::string vertex_id);
     void drawApproximationAnalysis(std::string vertex_id);
     void drawTspRealWorld(std::string basicString);
+    void drawRemoveVertexEdge();
     void waitForEnter();
     void firstMenu();
 private:
