@@ -7,7 +7,6 @@
 #include <sstream>
 #include <iostream>
 #include <algorithm>
-#include <queue>
 #include <limits>
 #include <stack>
 
@@ -228,6 +227,62 @@ Vertex* Data::findNearestNeighbor(Vertex* v) {
     return nearestNeighbor;
 }
 
+std::vector<Vertex *> Data::prim(Graph * g) {
+    if (g->getVertexSet().empty()) {
+        return g->getVertexSet();
+    }
+    for(auto v : g->getVertexSet()) {
+        v->setDist(INT_MAX);
+        v->setPath(nullptr);
+        v->setVisited(false);
+    }
+    Vertex* s = g->getVertexSet().front();
+    s->setDist(0);
+    MutablePriorityQueue<Vertex> q;
+    q.insert(s);
+    while( ! q.empty() ) {
+        auto v = q.extractMin();
+        v->setVisited(true);
+        for(auto &e : v->getAdj()) {
+            Vertex* w = e->getDest();
+            if (!w->isVisited()) {
+                auto oldDist = w->getDist();
+                if(e->getWeight() < oldDist) {
+                    w->setDist(e->getWeight());
+
+                    w->setPath(e);
+                    if (oldDist == INT_MAX) {
+                        q.insert(w);
+                    }
+                    else {
+                        q.decreaseKey(w);
+                    }
+                }
+            }
+        }
+    }
+
+    return g->getVertexSet();
+}
+
+void Data::dfsMST(Vertex* v, const std::vector<Vertex*>& mst) {
+    v->setVisited(true);
+
+    if (std::find(aproximation_tour_.begin(), aproximation_tour_.end(), v) == aproximation_tour_.end()) {
+        aproximation_tour_.push_back(v);
+    }
+
+    for (auto& edge : v->getAdj()) {
+        Vertex* neighbor = edge->getDest();
+        if (!neighbor->isVisited()) {
+            aproximation_tourCost_ += edge->getWeight();
+            dfsMST(neighbor, mst);
+        }
+    }
+}
+
+
+
 void Data::triangularHeuristicAproximation(const string& startNodeId) {
     aproximation_tour_.clear();
     aproximation_tourCost_ = 0.0;
@@ -238,31 +293,16 @@ void Data::triangularHeuristicAproximation(const string& startNodeId) {
         return;
     }
 
-    aproximation_tour_.push_back(startVertex);
-    startVertex->setVisited(true);
-    while (aproximation_tour_.size() < network_.getVertexSet().size()) {
-        Vertex* lastVertex = aproximation_tour_.back();
-        Vertex* nearestNeighbor = findNearestNeighbor(lastVertex);
-        if (nearestNeighbor) {
-            nearestNeighbor->setVisited(true);
-            aproximation_tour_.push_back(nearestNeighbor);
-            for (Edge* edge : lastVertex->getAdj()) {
-                if (edge->getDest() == nearestNeighbor) {
-                    aproximation_tourCost_ += edge->getWeight();
-                    break;
-                }
-            }
-        }else{
-            break;
-        }
+    std::vector<Vertex*> mst = prim(&network_);
+
+    for(auto v : network_.getVertexSet()) {
+        v->setVisited(false);
     }
-    for (Edge* edge : startVertex->getAdj()) {
-        if (edge->getDest() == aproximation_tour_.back()) {
-            aproximation_tourCost_ += edge->getWeight();
-            break;
-        }
-    }
+    dfsMST(startVertex, mst);
+
     aproximation_tour_.push_back(startVertex);
+
+    aproximation_tourCost_ = calculateTourCost(aproximation_tour_);
 }
 
 vector<Vertex*> Data::getAproximationTour() {

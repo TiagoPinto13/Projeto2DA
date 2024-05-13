@@ -26,11 +26,13 @@ public:
     double haversineDistance(double lat1, double lon1, double lat2, double lon2);
     Vertex* findNearestNeighbor(Vertex* v);
     void triangularHeuristicAproximation(const std::string& startNodeId);
+    void dfsMST(Vertex* v, const std::vector<Vertex*>& mst);
     std::vector<Vertex*> getAproximationTour();
     double getAproximationTourCost();
     void clusterApproximationTSP(const std::string& startNodeId);
     Vertex* findNearestNeighborInCluster(Vertex* v, const std::unordered_set<Vertex*>& cluster);
     std::vector<Vertex*> getClusterTour();
+    std::vector<Vertex *> prim(Graph * g);
     double getClusterTourCost();
     void preorderTraversalMST(Vertex* u);
     void mstApproximationTSP(const std::string& startNodeId);
