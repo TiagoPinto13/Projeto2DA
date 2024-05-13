@@ -143,6 +143,7 @@ void Menu::drawBottom(){
 }
 
 void Menu::drawMenu(int option) {
+    data_ = Data();
     if(option ==1){
         data_.parseTOY(false,"../dataset/Toy-Graphs/Toy-Graphs/shipping.csv");
     }
@@ -237,58 +238,24 @@ void Menu::drawMenu(int option) {
                 break;
             }
             case '2': {
-                string vertex_id;
-                cout << "Enter the vertex id: ";
-                cin >> vertex_id;
-                if(data_.getNetwork().findVertex(vertex_id) == nullptr){
-                    cout << "Invalid vertex id" << endl;
-                    break;
-                }
-                drawTriangular(vertex_id);
+                drawTriangular("0");
                 break;
             }
             case '3': {
-                string vertex_id;
-                cout << "Enter the vertex id: ";
-                cin >> vertex_id;
-                if(data_.getNetwork().findVertex(vertex_id) == nullptr){
-                    cout << "Invalid vertex id" << endl;
-                    break;
-                }
-                drawCluster(vertex_id);
+                drawCluster("0");
                 break;
             }
             case '4': {
-                string vertex_id;
-                cout << "Enter the vertex id: ";
-                cin >> vertex_id;
-                if(data_.getNetwork().findVertex(vertex_id) == nullptr){
-                    cout << "Invalid vertex id" << endl;
-                    break;
-                }
-                drawMST(vertex_id);
+                drawMST("0");
                 break;
             }
             case '5': {
-                string vertex_id;
-                cout << "Enter the vertex id: ";
-                cin >> vertex_id;
-                if(data_.getNetwork().findVertex(vertex_id) == nullptr){
-                    cout << "Invalid vertex id" << endl;
-                    break;
-                }
-                drawApproximationAnalysis(vertex_id);
+
+                drawApproximationAnalysis("0");
                 break;
             }
             case '6':{
-                string vertex_id;
-                cout << "Enter the vertex id: ";
-                cin >> vertex_id;
-                if(data_.getNetwork().findVertex(vertex_id) == nullptr){
-                    cout << "Invalid vertex id" << endl;
-                    break;
-                }
-                drawTspRealWorld(vertex_id);
+                drawTspRealWorld("0");
                 break;
             }
             case '7': {
@@ -407,6 +374,9 @@ void Menu::drawTriangular(string vertex_id) {
     cout << "│" << setw(53) << "│" << endl;
     cout << "│ " << left << setw(12) << "Tour cost: " << right << left << setw(36) << data_.getAproximationTourCost() << right << " │" << endl;
     cout << "│ " << left << setw(12) << "Time taken: " << right << left <<  setw(37) << to_string(duration.count()) +  " seconds" << "│" << right << endl;
+    for(auto v: data_.getAproximationTour()) {
+        cout << "│ " << left << "vertex: " << setw(4) << v->getInfo() << right <<setw(40) << "│"  << endl;
+    }
     cout << "│" << setw(53) << "│" << endl;
     cout << "└──────────────────────────────────────────────────┘" << endl;
     waitForEnter();
