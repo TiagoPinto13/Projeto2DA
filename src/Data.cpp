@@ -401,11 +401,11 @@ void Data::mstApproximationTSP(const string& startNodeId) {
         return;
     }
 
-    vector<bool> visited(network_.getVertexSet().size(), false); // Track visited vertices
     MutablePriorityQueue<Vertex> pq;
-
     pq.insert(startVertex);
-    visited[stoi(startVertex->getInfo())] = true; // Mark start vertex as visited
+
+    vector<bool> visited(network_.getVertexSet().size(), false);
+    visited[stoi(startVertex->getInfo())] = true;
 
     while (!pq.empty()) {
         Vertex* u = pq.extractMin();
@@ -414,8 +414,9 @@ void Data::mstApproximationTSP(const string& startNodeId) {
             Vertex* v = edge->getDest();
             double weight = edge->getWeight();
             int vIndex = stoi(v->getInfo());
+
             if (!visited[vIndex]) {
-                v->setParent(u); // Set parent pointer
+                v->setParent(u);
                 pq.insert(v);
                 visited[vIndex] = true;
             }
@@ -423,14 +424,17 @@ void Data::mstApproximationTSP(const string& startNodeId) {
     }
 
     preorderTraversalMST(startVertex);
+
     mst_tourCost_ = calculateTourCost(mst_tour_);
 }
 
 void Data::preorderTraversalMST(Vertex* u) {
     mst_tour_.push_back(u);
+
     for (Edge* edge : u->getAdj()) {
         Vertex* v = edge->getDest();
-        if (v->getParent() == u) { // Check if v is connected to u
+
+        if (v->getParent() == u) {
             preorderTraversalMST(v);
         }
     }
