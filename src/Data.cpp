@@ -126,6 +126,12 @@ void Data::parseTOY(bool tourismCSV, string edgesFilePath) {  //bool to store th
     }
 }
 
+void Data::resetNodesVisitation() {
+    for(auto vertex : network_.getVertexSet()) {
+        vertex->setVisited(false);
+    }
+}
+
 Graph Data::getNetwork() {
     return network_;
 }
@@ -141,13 +147,13 @@ void Data::backtrackingTSP() {
     Vertex* v = network_.findVertex("0");
 
 
-    // Set visited to false for all vertices except the starting vertex
     for(auto vertex : network_.getVertexSet()) {
         vertex->setVisited(false);
     }
 
-    currentTour.push_back(v); // Start from vertex 0
+    currentTour.push_back(v);
     backtrack(currentTour, 0);
+    resetNodesVisitation();
 }
 
 void Data::backtrack(vector<Vertex*>& currentTour, double currentCost) {
@@ -303,6 +309,7 @@ void Data::triangularHeuristicAproximation(const string& startNodeId) {
     aproximation_tour_.push_back(startVertex);
 
     aproximation_tourCost_ = calculateTourCost(aproximation_tour_);
+    resetNodesVisitation();
 }
 
 vector<Vertex*> Data::getAproximationTour() {
@@ -315,11 +322,7 @@ double Data::getAproximationTourCost() {
 
 void Data::clusterApproximationTSP(const string& startNodeId){
     const auto& vertices = network_.getVertexSet();
-    unordered_set<Vertex*> clusters;
-
-    for (const auto& vertex : vertices) {
-        clusters.insert(vertex);
-    }
+    unordered_set<Vertex*> unvisited(vertices.begin(), vertices.end());
 
     cluster_tour_.clear();
     cluster_tourCost_ = 0.0;
@@ -332,10 +335,11 @@ void Data::clusterApproximationTSP(const string& startNodeId){
 
     cluster_tour_.push_back(startVertex);
     startVertex->setVisited(true);
+    unvisited.erase(startVertex);
 
-    while (!clusters.empty()) {
+    while (cluster_tour_.size() < vertices.size()) {
         Vertex* lastVertex = cluster_tour_.back();
-        Vertex* nearestNeighbor = findNearestNeighborInCluster(lastVertex, clusters);
+        Vertex* nearestNeighbor = findNearestNeighborCluster(lastVertex, unvisited);
 
         if (nearestNeighbor) {
             nearestNeighbor->setVisited(true);
@@ -348,7 +352,7 @@ void Data::clusterApproximationTSP(const string& startNodeId){
                 }
             }
 
-            clusters.erase(nearestNeighbor);
+            unvisited.erase(nearestNeighbor);
         } else {
             break;
         }
@@ -362,15 +366,17 @@ void Data::clusterApproximationTSP(const string& startNodeId){
     }
 
     cluster_tour_.push_back(startVertex);
+    resetNodesVisitation();
 }
 
-Vertex* Data::findNearestNeighborInCluster(Vertex* v, const unordered_set<Vertex*>& cluster) {
+
+Vertex* Data::findNearestNeighborCluster(Vertex* v, const unordered_set<Vertex*>& unvisited) {
     Vertex* nearestNeighbor = nullptr;
     double minDistance = numeric_limits<double>::max();
 
     for (Edge* edge : v->getAdj()) {
         Vertex* neighbor = edge->getDest();
-        if (!neighbor->isVisited() && cluster.count(neighbor)) {
+        if (!neighbor->isVisited() && unvisited.count(neighbor)) {
             double distance = edge->getWeight();
             if (distance < minDistance) {
                 minDistance = distance;
@@ -381,6 +387,8 @@ Vertex* Data::findNearestNeighborInCluster(Vertex* v, const unordered_set<Vertex
 
     return nearestNeighbor;
 }
+
+
 
 vector<Vertex*> Data::getClusterTour() {
     return cluster_tour_;
@@ -426,6 +434,7 @@ void Data::mstApproximationTSP(const string& startNodeId) {
     preorderTraversalMST(startVertex);
 
     mst_tourCost_ = calculateTourCost(mst_tour_);
+    resetNodesVisitation();
 }
 
 void Data::preorderTraversalMST(Vertex* u) {
@@ -506,6 +515,7 @@ vector<string> Data::tsp_subgraph(const Graph& subgraph, string start) {
         }
     }
     tour.push_back(start);
+    resetNodesVisitation();
     return tour;
 }
 
