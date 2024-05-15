@@ -564,7 +564,7 @@ vector<string> Data::tsp_real_world(const string& start_node) {
         return vector<string>();
     }
 }
-
+*/
 std::vector<Vertex *> Data::getBestTour() {
     return bestTour;
 }
@@ -572,7 +572,7 @@ std::vector<Vertex *> Data::getBestTour() {
 bool Data::isTourism() {
     return tourism;
 }
-*/
+
 const int INF = std::numeric_limits<int>::max();
 
 std::string Data::bfs_farthest_node(const std::string& start) {
