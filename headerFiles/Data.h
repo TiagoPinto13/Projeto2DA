@@ -39,9 +39,9 @@ public:
     void mstApproximationTSP(const std::string& startNodeId);
     std::vector<Vertex*> getMSTTour();
     double getMSTTourCost();
-    std::vector<std::string> tsp_subgraph(const Graph& graph, std::string start);
-    std::vector<std::string> merge_tours(const std::vector<std::vector<std::string> >& tours);
-    std::vector<std::string> tsp_real_world(const std::string& start_node);
+    std::string bfs_farthest_node(const std::string& start);
+    std::unordered_map<std::string, int> dijkstra(const std::string& start);
+    std::vector<std::string> tsp_real_world( std::string start);
     void removeVertex(std::string id);
     void removeEdge(std::string id1, std::string id2);
     bool isInBestTour(Vertex* v);

@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <limits>
 #include <stack>
-
+#include <climits>
 using namespace std;
 
 
@@ -461,24 +461,23 @@ double Data::getMSTTourCost() {
 
 
 
-//TSP REAL WORLD
-
-    vector<string> Data::merge_tours(const vector<vector<string> >& tours) {
-        vector<string> merged_tour;
-        for (const auto& tour : tours) {
-            if (merged_tour.empty()) {
-                merged_tour = tour;
-            } else {
-                for (size_t i = 0; i < merged_tour.size(); ++i) {
-                    if (merged_tour[i] == tour[0]) {
-                        merged_tour.insert(merged_tour.begin() + i, tour.begin() + 1, tour.end());
-                        break;
-                    }
+/*TSP REAL WORLD
+vector<string> Data::merge_tours(const vector<vector<string> >& tours) {
+    vector<string> merged_tour;
+    for (const auto& tour : tours) {
+        if (merged_tour.empty()) {
+            merged_tour = tour;
+        } else {
+            for (size_t i = 0; i < merged_tour.size(); ++i) {
+                if (merged_tour[i] == tour[0]) {
+                    merged_tour.insert(merged_tour.begin() + i, tour.begin() + 1, tour.end());
+                    break;
                 }
             }
         }
-        return merged_tour;
     }
+    return merged_tour;
+}
 
 vector<string> Data::tsp_subgraph(const Graph& subgraph, string start) {
     vector<string> tour;
@@ -553,6 +552,135 @@ std::vector<Vertex *> Data::getBestTour() {
 bool Data::isTourism() {
     return tourism;
 }
+*/
+const int INF = std::numeric_limits<int>::max();
+
+std::string Data::bfs_farthest_node(const std::string& start) {
+    std::unordered_set<std::string> visited;
+    std::queue<std::pair<std::string, int>> q; // par (nó, distância)
+    q.push({start, 0});
+    visited.insert(start);
+
+    std::string farthest_node = start;
+    int max_distance = 0;
+
+    while (!q.empty()) {
+        auto [node, dist] = q.front();
+        q.pop();
+
+        if (dist > max_distance) {
+            max_distance = dist;
+            farthest_node = node;
+        }
+
+        Vertex* vertex = network_.findVertex(node);
+        if (vertex != nullptr) {
+            for (const auto& edge : vertex->getAdj()) {
+                std::string neighbor = edge->getDest()->getInfo();
+                if (visited.find(neighbor) == visited.end()) {
+                    visited.insert(neighbor);
+                    q.push({neighbor, dist + 1});
+                }
+            }
+        }
+    }
+
+    return farthest_node;
+}
+
+std::unordered_map<std::string, int> Data::dijkstra(const std::string& start) {
+    std::unordered_map<std::string, int> distances;
+    for (const auto& vertex : network_.getVertexSet()) {
+        distances[vertex->getInfo()] = INF;
+    }
+    distances[start] = 0;
+
+    std::priority_queue<std::pair<int, std::string>, std::vector<std::pair<int, std::string>>, std::greater<>> pq;
+    pq.push({0, start});
+
+    while (!pq.empty()) {
+        auto [current_distance, current_node] = pq.top();
+        pq.pop();
+
+        if (current_distance > distances[current_node]) continue;
+
+        Vertex* node = network_.findVertex(current_node);
+        for (auto& edge : node->getAdj()) {
+            Vertex* neighbor = edge->getDest();
+            int weight = edge->getWeight();
+
+            int distance = current_distance + weight;
+            if (distance < distances[neighbor->getInfo()]) {
+                distances[neighbor->getInfo()] = distance;
+                pq.push({distance, neighbor->getInfo()});
+            }
+        }
+    }
+
+    return distances;
+}
+
+std::vector<std::string> Data::tsp_real_world(std::string start) {
+    if (network_.getVertexSet().empty()) {
+        std::cout << "No path exists" << std::endl;
+        return {};
+    }
+
+    std::string farthest_node = bfs_farthest_node(start);
+    auto distances_from_farthest = dijkstra(farthest_node);
+
+    std::unordered_set<std::string> visited;
+    std::vector<std::string> path;
+    std::string current_node = start;
+    visited.insert(current_node);
+    path.push_back(current_node);
+
+    while (visited.size() < network_.getVertexSet().size()) {
+        std::string next_node;
+        int min_distance = INF;
+
+        Vertex* node = network_.findVertex(current_node);
+        if (node != nullptr) {
+            for (const auto& edge : node->getAdj()) {
+                std::string neighbor = edge->getDest()->getInfo();
+                int weight = edge->getWeight();
+
+                // Adicione uma verificação para garantir que next_node não está vazio antes de acessá-lo
+                if (visited.find(neighbor) == visited.end()) {
+                    if (weight < min_distance) {
+                        min_distance = weight;
+                        next_node = neighbor;
+                    }
+                }
+            }
+        }
+
+        if (next_node.empty()) {
+            for (const auto& vertex : network_.getVertexSet()) {
+                std::string vertex_info = vertex->getInfo();
+                if (visited.find(vertex_info) == visited.end()) {
+                    next_node = vertex_info;
+                    break;
+                }
+            }
+        }
+
+        if (next_node.empty()) {
+            std::cout << "No path exists" << std::endl;
+            return {};
+        }
+
+        visited.insert(next_node);
+        path.push_back(next_node);
+        current_node = next_node;
+    }
+
+    path.push_back(start);  // Retornar ao início para completar o tour
+    return path;
+}
+
+
+
 
 void Data::removeVertex(string id) {
     if(network_.findVertex(id) != nullptr) {
@@ -586,4 +714,7 @@ May not guarantee an optimal solution due to the heuristic nature of TSP algorit
 Complexity increases with the number of disconnected components in the graph.
 Requires careful handling of merging subgraph tours to minimize tour length.
 
+The branch-and-bound method:
+ The problem is broken down into sub-problems in this approach. The solution of those individual sub-problems would provide an optimal solution.
+Complexity: O(N^2 * 2^N)
  */
