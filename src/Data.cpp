@@ -8,6 +8,7 @@
 #include <iostream>
 #include <algorithm>
 #include <limits>
+#include <climits>
 #include <stack>
 #include <climits>
 using namespace std;
@@ -304,12 +305,27 @@ void Data::triangularHeuristicAproximation(const string& startNodeId) {
     for(auto v : network_.getVertexSet()) {
         v->setVisited(false);
     }
-    dfsMST(startVertex, mst);
-
+    Graph mstGraph;
+    for(auto v : mst) {
+        mstGraph.addVertex(v->getInfo(),v->getLong(),v->getLat());
+        auto ep = v->getPath();
+        if (ep != nullptr) {
+            if(!mstGraph.addBidirectionalEdge(ep->getOrig()->getInfo(),ep->getDest()->getInfo(),ep->getWeight())) {
+                mstGraph.addVertex(ep->getOrig()->getInfo(),ep->getOrig()->getLong(),ep->getOrig()->getLat());
+                mstGraph.addVertex(ep->getDest()->getInfo(),ep->getDest()->getLong(),ep->getDest()->getLat());
+                mstGraph.addBidirectionalEdge(ep->getOrig()->getInfo(),ep->getDest()->getInfo(),ep->getWeight());
+            }
+        }
+    }
+    //dfsMST(startVertex, mstGraph.getVertexSet());
+    auto vector1 = mstGraph.dfs();
+    for(auto s: vector1) {
+        aproximation_tour_.push_back(network_.findVertex(s));
+    }
     aproximation_tour_.push_back(startVertex);
 
     aproximation_tourCost_ = calculateTourCost(aproximation_tour_);
-    resetNodesVisitation();
+    //resetNodesVisitation();
 }
 
 vector<Vertex*> Data::getAproximationTour() {
