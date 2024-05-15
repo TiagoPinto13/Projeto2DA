@@ -23,11 +23,12 @@ public:
     void backtrack(std::vector<Vertex*>& currentTour, double currentCost);
 
     double calculateTourCost(const std::vector<Vertex*>& tour) const;
-    double haversineDistance(double lat1, double lon1, double lat2, double lon2);
+    double haversineDistance(double lat1, double lon1, double lat2, double lon2) const;
     void resetNodesVisitation();
     Vertex* findNearestNeighbor(Vertex* v);
     void triangularHeuristicAproximation(const std::string& startNodeId);
     void dfsMST(Vertex* v, const std::vector<Vertex*>& mst);
+    void createMstGraph(Graph &mstGraph, std::vector<Vertex*>  mst);
     std::vector<Vertex*> getAproximationTour();
     double getAproximationTourCost();
     void clusterApproximationTSP(const std::string& startNodeId);

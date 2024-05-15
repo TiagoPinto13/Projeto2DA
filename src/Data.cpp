@@ -33,7 +33,8 @@ void Data::readNodes(string nodeFilePath, int numberOfNodes) {
             double latitude = stod(latitude_str);
             double longitude = stod(longitude_str);
 
-            network_.addVertex(id_str, longitude, latitude);
+            network_.addVertex(id_str, longitude, latitude, true);
+
         }
     }
     else {
@@ -47,7 +48,7 @@ void Data::readNodes(string nodeFilePath, int numberOfNodes) {
             double latitude = stod(latitude_str);
             double longitude = stod(longitude_str);
 
-            network_.addVertex(id_str, longitude, latitude);
+            network_.addVertex(id_str, longitude, latitude, true);
         }
     }
 
@@ -119,8 +120,8 @@ void Data::parseTOY(bool tourismCSV, string edgesFilePath) {  //bool to store th
         double weight = stod(distancia);
 
         if(!network_.addEdge(origem, destino, weight)) {
-            network_.addVertex(origem,0,0);
-            network_.addVertex(destino,0,0);
+            network_.addVertex(origem,0,0, false);
+            network_.addVertex(destino,0,0, false);
             network_.addEdge(origem, destino, weight);
         }
         network_.addEdge(destino, origem, weight);
@@ -181,17 +182,26 @@ void Data::backtrack(vector<Vertex*>& currentTour, double currentCost) {
 
 double Data::calculateTourCost(const vector<Vertex*>& tour) const {
     double cost = 0;
-
+    int nodenr=0;
     for (size_t i = 0; i < tour.size() - 1; ++i) {
         Vertex* v1 = tour[i];
         Vertex* v2 = tour[i + 1];
-
+        bool haveEdge=false;
         for (Edge* edge : v1->getAdj()) {
-            if (edge->getDest() == v2) {
+            if (edge->getDest()->getInfo() == v2->getInfo()) {
                 cost += edge->getWeight();
+                nodenr++;
+                haveEdge=true;
                 break;
             }
         }
+        if(!haveEdge && v1->hasCoord() && v2->hasCoord()) {
+            cost += haversineDistance(v1->getLat(),v1->getLong(),v2->getLat(),v2->getLong());
+            nodenr++;
+        }
+    }
+    if(nodenr+1 < aproximation_tour_.size()) {
+        return -1;
     }
     return cost;
 }
@@ -200,13 +210,13 @@ double Data::getCost() {
     return bestCost;
 }
 
-double haversineDistance(double lat1, double lon1, double lat2, double lon2){
+double Data::haversineDistance(double lat1, double lon1, double lat2, double lon2) const {
     lat1 *= M_PI / 180.0;
     lon1 *= M_PI / 180.0;
     lat2 *= M_PI / 180.0;
     lon2 *= M_PI / 180.0;
 
-    const double EARTHRADIUS = 6371.0;
+    const double EARTHRADIUS = 6371000;
 
     double dLat = lat2 - lat1;
     double dLon = lon2 - lon1;
@@ -288,44 +298,38 @@ void Data::dfsMST(Vertex* v, const std::vector<Vertex*>& mst) {
     }
 }
 
-
-
-void Data::triangularHeuristicAproximation(const string& startNodeId) {
-    aproximation_tour_.clear();
-    aproximation_tourCost_ = 0.0;
-
-    Vertex* startVertex = network_.findVertex(startNodeId);
-    if (!startVertex) {
-        cerr << "Start node not found in the graph.\n";
-        return;
-    }
-
-    std::vector<Vertex*> mst = prim(&network_);
-
-    for(auto v : network_.getVertexSet()) {
-        v->setVisited(false);
-    }
-    Graph mstGraph;
+void Data::createMstGraph(Graph &mstGraph, std::vector<Vertex*>  mst) {
     for(auto v : mst) {
-        mstGraph.addVertex(v->getInfo(),v->getLong(),v->getLat());
+        mstGraph.addVertex(v->getInfo(),v->getLong(),v->getLat(), v->hasCoord());
         auto ep = v->getPath();
         if (ep != nullptr) {
             if(!mstGraph.addBidirectionalEdge(ep->getOrig()->getInfo(),ep->getDest()->getInfo(),ep->getWeight())) {
-                mstGraph.addVertex(ep->getOrig()->getInfo(),ep->getOrig()->getLong(),ep->getOrig()->getLat());
-                mstGraph.addVertex(ep->getDest()->getInfo(),ep->getDest()->getLong(),ep->getDest()->getLat());
+                mstGraph.addVertex(ep->getOrig()->getInfo(),ep->getOrig()->getLong(),ep->getOrig()->getLat(), ep->getOrig()->hasCoord());
+                mstGraph.addVertex(ep->getDest()->getInfo(),ep->getDest()->getLong(),ep->getDest()->getLat(), ep->getDest()->hasCoord());
                 mstGraph.addBidirectionalEdge(ep->getOrig()->getInfo(),ep->getDest()->getInfo(),ep->getWeight());
             }
         }
     }
-    //dfsMST(startVertex, mstGraph.getVertexSet());
-    auto vector1 = mstGraph.dfs();
-    for(auto s: vector1) {
+}
+
+void Data::triangularHeuristicAproximation(const string& startNodeId) {
+    aproximation_tour_.clear();
+    aproximation_tourCost_ = 0.0;
+    Vertex* startVertex = network_.findVertex("0");
+    if (!startVertex) {
+        cerr << "Start node not found in the graph.\n";
+        return;
+    }
+    std::vector<Vertex*> mst = prim(&network_);
+    resetNodesVisitation();
+    Graph mstGraph;
+    createMstGraph(mstGraph,mst);
+    auto tour = mstGraph.dfs();
+    for(auto s: tour) {
         aproximation_tour_.push_back(network_.findVertex(s));
     }
     aproximation_tour_.push_back(startVertex);
-
     aproximation_tourCost_ = calculateTourCost(aproximation_tour_);
-    //resetNodesVisitation();
 }
 
 vector<Vertex*> Data::getAproximationTour() {
@@ -540,7 +544,7 @@ vector<string> Data::tsp_real_world(const string& start_node) {
     vector<vector<string> > subgraph_tours;
     for (const auto& vertex : network_.getVertexSet()) {
         Graph subgraph;
-        subgraph.addVertex(vertex->getInfo(), vertex->getLong(), vertex->getLat());
+        subgraph.addVertex(vertex->getInfo(), vertex->getLong(), vertex->getLat(), vertex->hasCoord());
         for (const Edge* edge : vertex->getAdj()) {
             string dest_node = edge->getDest()->getInfo();
             double weight = edge->getWeight();

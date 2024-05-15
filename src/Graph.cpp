@@ -1,7 +1,7 @@
 
 #include "../headerFiles//Graph.h"
 
-Vertex::Vertex(const std::string& in, const double& longitude_, const double& latitude_) : longitude(longitude_), latitude(latitude_), info(in), visited(false), processing(false), indegree(0), dist(0), path(nullptr), queueIndex(0) {}
+Vertex::Vertex(const std::string& in, const double& longitude_, const double& latitude_, bool f_) : hascoor(f_), longitude(longitude_), latitude(latitude_), info(in), visited(false), processing(false), indegree(0), dist(0), path(nullptr), queueIndex(0) {}
 
 /**
  * @brief Adds an edge from this vertex to the destination vertex with the given weight.
@@ -419,11 +419,11 @@ Vertex* Graph::findVertex(const std::string& in) const {
  *
  * @complexity Time Complexity: O(1) on average, O(n) in worst case, where n is the number of vertices in the graph.
  */
-bool Graph::addVertex(const std::string& in, const double& longitude, const double& latitude) {
+bool Graph::addVertex(const std::string& in, const double& longitude, const double& latitude, bool f) {
     if (findVertex(in) != nullptr) {
         return false;
     }
-    Vertex* vertex = new Vertex(in, longitude, latitude);
+    Vertex* vertex = new Vertex(in, longitude, latitude, f);
     vertexSet.push_back(vertex);
     vertexMap[in] = vertex;
     return true;
@@ -823,6 +823,14 @@ double Graph::getEdgeWeight(const std::string& source, const std::string& dest) 
         }
     }
     return std::numeric_limits<double>::infinity();
+}
+
+bool Vertex::hasCoord() {
+    return hascoor;
+}
+
+void Vertex::setHasCoord(bool hasco) {
+    hascoor = hasco;
 }
 
 
