@@ -5,6 +5,7 @@
 #include <vector>
 #include <queue>
 #include <limits>
+#include <unordered_map>
 #include <algorithm>
 #include "MutablePriorityQueue.h"
 

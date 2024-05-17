@@ -36,10 +36,6 @@ public:
     std::vector<Vertex*> getClusterTour();
     std::vector<Vertex *> prim(Graph * g);
     double getClusterTourCost();
-    void preorderTraversalMST(Vertex* u);
-    void mstApproximationTSP(const std::string& startNodeId);
-    std::vector<Vertex*> getMSTTour();
-    double getMSTTourCost();
     std::string bfs_farthest_node(const std::string& start);
     std::unordered_map<std::string, int> dijkstra(const std::string& start);
     std::vector<std::string> tsp_real_world( std::string start);
@@ -56,9 +52,6 @@ private:
 
     std::vector<Vertex*> cluster_tour_;
     double cluster_tourCost_;
-
-    std::vector<Vertex*> mst_tour_;
-    double mst_tourCost_;
 
     bool tourism=false;
     Graph network_;
