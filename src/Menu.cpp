@@ -234,7 +234,7 @@ void Menu::drawMenu(int option) {
         cin >> key;
         switch (key) {
             case '1':{
-                drawBacktracking();
+                //drawBacktracking();
                 break;
             }
             case '2': {
@@ -256,9 +256,14 @@ void Menu::drawMenu(int option) {
             }
             case '6':{
                 string input;
-                cout << "Choose a start vertex: ";
-                cin >> input;
-                drawTspRealWorld(input);
+                //cout << "Choose a start vertex: ";
+                //cin >> input;
+                for(int i = 910; i < 5000; i++) {
+                    drawTspRealWorld(to_string(i));
+                }
+
+
+
                 break;
             }
             case '7': {
@@ -325,7 +330,7 @@ void Menu::drawRemoveVertexEdge(){
     }
 
 }
-
+/*
 void Menu::drawBacktracking() {
 
     auto start = chrono::high_resolution_clock::now();
@@ -364,7 +369,7 @@ void Menu::drawBacktracking() {
     cout << "│" << setw(53) << right <<"│" << endl;
     cout << "└──────────────────────────────────────────────────┘" << endl;
     waitForEnter();
-}
+}*/
 
 void Menu::drawTriangular(string vertex_id) {
     auto start = chrono::high_resolution_clock::now();
@@ -480,22 +485,17 @@ void Menu::drawTspRealWorld(std::string vertex_id) {
 
     cout << "┌─ TSP in Real World ──────────────────────────────┐" << endl;
     cout << "│                                                  │" << endl;
-    cout << "│ Start Node: " << left << setw(36) << vertex_id << " │" << endl;
+    cout << "│ Start Node: " << left << setw(36) << vertex_id << "│" << endl;
 
     if (!tour.empty()) {
-        cout << "│ " << left << setw(12) << "Time taken:" << right << left << setw(37) << to_string(duration.count()) +  " seconds" << "│" << endl;
-
+        cout << "│ " << left << setw(12) << "Time taken:" << right << left << setw(37) << to_string(duration.count()) + " seconds" << "│" << endl;
         cout << "│ " << left << setw(12) << "Tour Cost:" << left << setw(39) << calculate_tour_cost(tour) << "│" << endl;
-        cout << "│ " << left << setw(12) << "Tour:" << "[";
-        int count=0;
+        cout << "│ " << left << setw(12) << "Tour:" << left << setw(39) << "[";
         for (size_t i = 0; i < tour.size(); ++i) {
-            count++;
             cout << tour[i];
             if (i < tour.size() - 1) {
                 cout << ", ";
             }
-            if(count%9==0)
-                cout<<endl;
         }
         cout << "]" << "│" << endl;
     } else {
@@ -503,7 +503,7 @@ void Menu::drawTspRealWorld(std::string vertex_id) {
     }
     cout << "│                                                  │" << endl;
     cout << "└──────────────────────────────────────────────────┘" << endl;
-    waitForEnter();
+    //waitForEnter();
 }
 
 void Menu::waitForEnter() {

@@ -39,6 +39,14 @@ public:
     void mstApproximationTSP(const std::string& startNodeId);
     std::vector<Vertex*> getMSTTour();
     double getMSTTourCost();
+
+    //std::vector<std::string> merge_tours(const std::vector<std::vector<std::string> >& tours);
+    //std::vector<std::string> tsp_subgraph(const Graph& subgraph, std::string start);
+    //std::vector<std::string> tsp_real_world(const std::string& start_node);
+
+
+
+    bool isConnected(const std::string& start) ;
     std::string bfs_farthest_node(const std::string& start);
     std::unordered_map<std::string, int> dijkstra(const std::string& start);
     std::vector<std::string> tsp_real_world( std::string start);
@@ -46,22 +54,23 @@ public:
     void removeEdge(std::string id1, std::string id2);
     bool isInBestTour(Vertex* v);
 
-private:
-    std::vector<Vertex*> bestTour;
-    double bestCost;
+    private:
+        std::vector<Vertex*> bestTour;
+        double bestCost;
 
-    std::vector<Vertex*> aproximation_tour_;
-    double aproximation_tourCost_;
+        std::vector<Vertex*> aproximation_tour_;
+        double aproximation_tourCost_;
 
-    std::vector<Vertex*> cluster_tour_;
-    double cluster_tourCost_;
+        std::vector<Vertex*> cluster_tour_;
+        double cluster_tourCost_;
 
-    std::vector<Vertex*> mst_tour_;
-    double mst_tourCost_;
+        std::vector<Vertex*> mst_tour_;
+        double mst_tourCost_;
 
-    bool tourism=false;
-    Graph network_;
-    std::map<std::string,std::string> tourismLabels;
-};
+        bool tourism=false;
+        Graph network_;
+        std::map<std::string,std::string> tourismLabels;
+
+    };
 
 #endif //PROJ2DA_DATA_H

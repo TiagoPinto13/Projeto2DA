@@ -476,6 +476,7 @@ double Data::getMSTTourCost() {
 
 
 
+const int INF = std::numeric_limits<int>::max();
 
 /*TSP REAL WORLD
 vector<string> Data::merge_tours(const vector<vector<string> >& tours) {
@@ -567,9 +568,11 @@ std::vector<Vertex *> Data::getBestTour() {
 
 bool Data::isTourism() {
     return tourism;
-}
-*/
-const int INF = std::numeric_limits<int>::max();
+}*/
+
+
+
+
 
 std::string Data::bfs_farthest_node(const std::string& start) {
     std::unordered_set<std::string> visited;
@@ -635,10 +638,39 @@ std::unordered_map<std::string, int> Data::dijkstra(const std::string& start) {
 
     return distances;
 }
+bool Data::isConnected(const std::string& start) {
+    if (network_.getVertexSet().empty()) return false;
+
+    std::unordered_set<std::string> visited;
+    std::queue<std::string> q;
+    q.push(start);
+    visited.insert(start);
+
+    while (!q.empty()) {
+        std::string node = q.front();
+        q.pop();
+
+        Vertex* vertex = network_.findVertex(node);
+        if (vertex != nullptr) {
+            for (const auto& edge : vertex->getAdj()) {
+                std::string neighbor = edge->getDest()->getInfo();
+                if (visited.find(neighbor) == visited.end()) {
+                    visited.insert(neighbor);
+                    q.push(neighbor);
+                }
+            }
+        }
+    }
+
+    return visited.size() == network_.getVertexSet().size();
+}
+
+
+
 
 std::vector<std::string> Data::tsp_real_world(std::string start) {
-    if (network_.getVertexSet().empty()) {
-        std::cout << "No path exists" << std::endl;
+    if (network_.getVertexSet().empty() || !isConnected(start)) {
+        std::cout << "No feasible tour exists" << std::endl;
         return {};
     }
 
@@ -661,28 +693,16 @@ std::vector<std::string> Data::tsp_real_world(std::string start) {
                 std::string neighbor = edge->getDest()->getInfo();
                 int weight = edge->getWeight();
 
-                // Adicione uma verificação para garantir que next_node não está vazio antes de acessá-lo
-                if (visited.find(neighbor) == visited.end()) {
-                    if (weight < min_distance) {
-                        min_distance = weight;
-                        next_node = neighbor;
-                    }
+                if (visited.find(neighbor) == visited.end() && weight < min_distance) {
+                    min_distance = weight;
+                    next_node = neighbor;
                 }
             }
         }
 
+        // Verificar se encontrou o próximo nó
         if (next_node.empty()) {
-            for (const auto& vertex : network_.getVertexSet()) {
-                std::string vertex_info = vertex->getInfo();
-                if (visited.find(vertex_info) == visited.end()) {
-                    next_node = vertex_info;
-                    break;
-                }
-            }
-        }
-
-        if (next_node.empty()) {
-            std::cout << "No path exists" << std::endl;
+            std::cout << "No feasible tour exists" << std::endl;
             return {};
         }
 
@@ -694,6 +714,7 @@ std::vector<std::string> Data::tsp_real_world(std::string start) {
     path.push_back(start);  // Retornar ao início para completar o tour
     return path;
 }
+
 
 
 
