@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iostream>
 #include <algorithm>
+#include <unordered_map>
 #include <limits>
 #include <climits>
 #include <stack>
@@ -416,66 +417,6 @@ vector<Vertex*> Data::getClusterTour() {
 
 double Data::getClusterTourCost() {
     return cluster_tourCost_;
-}
-
-
-void Data::mstApproximationTSP(const string& startNodeId) {
-    mst_tour_.clear();
-    mst_tourCost_ = 0.0;
-
-    Vertex* startVertex = network_.findVertex(startNodeId);
-    if (!startVertex) {
-        cerr << "Start node not found in the graph.\n";
-        return;
-    }
-
-    MutablePriorityQueue<Vertex> pq;
-    pq.insert(startVertex);
-
-    vector<bool> visited(network_.getVertexSet().size(), false);
-    visited[stoi(startVertex->getInfo())] = true;
-
-    while (!pq.empty()) {
-        Vertex* u = pq.extractMin();
-
-        for (Edge* edge : u->getAdj()) {
-            Vertex* v = edge->getDest();
-            double weight = edge->getWeight();
-            int vIndex = stoi(v->getInfo());
-
-            if (!visited[vIndex]) {
-                v->setParent(u);
-                pq.insert(v);
-                visited[vIndex] = true;
-            }
-        }
-    }
-
-    preorderTraversalMST(startVertex);
-
-    mst_tourCost_ = calculateTourCost(mst_tour_);
-    resetNodesVisitation();
-}
-
-void Data::preorderTraversalMST(Vertex* u) {
-    mst_tour_.push_back(u);
-
-    for (Edge* edge : u->getAdj()) {
-        Vertex* v = edge->getDest();
-
-        if (v->getParent() == u) {
-            preorderTraversalMST(v);
-        }
-    }
-}
-
-
-vector<Vertex*> Data::getMSTTour() {
-    return mst_tour_;
-}
-
-double Data::getMSTTourCost() {
-    return mst_tourCost_;
 }
 
 
