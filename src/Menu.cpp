@@ -256,11 +256,11 @@ void Menu::drawMenu(int option) {
             }
             case '6':{
                 string input;
-                //cout << "Choose a start vertex: ";
-                //cin >> input;
-                for(int i = 910; i < 5000; i++) {
-                    drawTspRealWorld(to_string(i));
-                }
+                cout << "Choose a start vertex: ";
+                cin >> input;
+                //for(int i = 4999; i > 911; i--) {
+                    drawTspRealWorld(input);
+                //}
 
 
 
@@ -478,24 +478,51 @@ double Menu::calculate_tour_cost(const std::vector<std::string>& tour) {
 }
 
 void Menu::drawTspRealWorld(std::string vertex_id) {
-    auto start = chrono::high_resolution_clock::now();
-    std::vector<std::string> tour = data_.tsp_real_world(vertex_id);
-    auto end = chrono::high_resolution_clock::now();
-    chrono::duration<double> duration = end - start;
+    auto start1 = chrono::high_resolution_clock::now();
+    std::vector<std::string> tour1 = data_.tsp_real_world1(vertex_id);
+    auto end1 = chrono::high_resolution_clock::now();
+    chrono::duration<double> duration1 = end1 - start1;
 
+    int count1 = 0;
+    int count2 = 0;
     cout << "┌─ TSP in Real World ──────────────────────────────┐" << endl;
     cout << "│                                                  │" << endl;
     cout << "│ Start Node: " << left << setw(36) << vertex_id << "│" << endl;
 
-    if (!tour.empty()) {
-        cout << "│ " << left << setw(12) << "Time taken:" << right << left << setw(37) << to_string(duration.count()) + " seconds" << "│" << endl;
-        cout << "│ " << left << setw(12) << "Tour Cost:" << left << setw(39) << calculate_tour_cost(tour) << "│" << endl;
+    if (!tour1.empty()) {
+        cout << "│ " << left << setw(12) << "Time taken:" << right << left << setw(37) << to_string(duration1.count()) + " seconds" << "│" << endl;
+        cout << "│ " << left << setw(12) << "Tour Cost:" << left << setw(39) << fixed << setprecision(2) << calculate_tour_cost(tour1) << "│" << endl;
         cout << "│ " << left << setw(12) << "Tour:" << left << setw(39) << "[";
-        for (size_t i = 0; i < tour.size(); ++i) {
-            cout << tour[i];
-            if (i < tour.size() - 1) {
+        for (size_t i = 0; i < tour1.size(); ++i) {
+            cout << tour1[i];
+            if (i < tour1.size() - 1) {
                 cout << ", ";
             }
+            if(count1 % 10==0)
+                cout << endl;
+            count1++;
+        }
+        cout << "]" << "│" << endl;
+    } else {
+        cout << "│ No feasible tour exists.                         │" << endl;
+    }
+
+    auto start2 = chrono::high_resolution_clock::now();
+    std::vector<std::string> tour2 = data_.tsp_real_world2(vertex_id);
+
+    auto end2 = chrono::high_resolution_clock::now();
+    chrono::duration<double> duration2 = end2 - start2;
+    if(!tour2.empty()) {
+        cout << "│ " << left << setw(12) << "Time taken:" << right << left << setw(37) << to_string(duration2.count()) + " seconds" << "│" << endl;
+        cout << "│ " << left << setw(12) << "Tour Cost:" << left << setw(39) << calculate_tour_cost(tour2) << "│" << endl;
+        cout << "│ " << left << setw(12) << "Tour:" << left << setw(39) << "[";
+        for (size_t i = 0; i < tour2.size(); ++i) {
+            cout << tour2[i];
+            if (i < tour2.size() - 1) {
+                cout << ", ";
+            }
+            if(count2 % 10==0)
+                cout << endl;
         }
         cout << "]" << "│" << endl;
     } else {

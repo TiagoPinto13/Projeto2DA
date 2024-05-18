@@ -11,6 +11,8 @@
 #include <climits>
 #include <stack>
 #include <climits>
+#include <list>
+
 using namespace std;
 
 
@@ -476,7 +478,6 @@ double Data::getMSTTourCost() {
 
 
 
-const int INF = std::numeric_limits<int>::max();
 
 /*TSP REAL WORLD
 vector<string> Data::merge_tours(const vector<vector<string> >& tours) {
@@ -574,6 +575,10 @@ bool Data::isTourism() {
 
 
 
+
+const int INF = std::numeric_limits<int>::max();
+
+
 std::string Data::bfs_farthest_node(const std::string& start) {
     std::unordered_set<std::string> visited;
     std::queue<std::pair<std::string, int>> q; // par (nó, distância)
@@ -668,7 +673,7 @@ bool Data::isConnected(const std::string& start) {
 
 
 
-std::vector<std::string> Data::tsp_real_world(std::string start) {
+std::vector<std::string> Data::tsp_real_world1(std::string start) {
     if (network_.getVertexSet().empty() || !isConnected(start)) {
         std::cout << "No feasible tour exists" << std::endl;
         return {};
@@ -736,6 +741,238 @@ void Data::removeEdge(string id1, string id2) {
         cerr << "One or both vertices not found in the graph.\n";
     }
 }
+
+
+
+
+
+
+
+Graph Data::copyGraph() const {
+    Graph copy;
+    for (const auto& vertex : network_.getVertexSet()) {
+        copy.addVertex(vertex->getInfo(), vertex->getLong(), vertex->getLat());
+    }
+    for (const auto& vertex : network_.getVertexSet()) {
+        for (const auto& edge : vertex->getAdj()) {
+            copy.addEdge(vertex->getInfo(), edge->getDest()->getInfo(), edge->getWeight());
+        }
+    }
+    return copy;
+}
+
+Graph Data::primMST(const std::string& start) {
+    Graph mst;
+    std::unordered_set<std::string> visited;
+    auto comp = [](const std::pair<int, std::pair<std::string, std::string>>& a, const std::pair<int, std::pair<std::string, std::string>>& b) {
+        return a.first > b.first;
+    };
+    std::priority_queue<std::pair<int, std::pair<std::string, std::string>>, std::vector<std::pair<int, std::pair<std::string, std::string>>>, decltype(comp)> pq(comp);
+
+    auto addEdges = [&](const std::string& node) {
+        Vertex* vertex = network_.findVertex(node);
+        for (const auto& edge : vertex->getAdj()) {
+            if (visited.find(edge->getDest()->getInfo()) == visited.end()) {
+                pq.push({edge->getWeight(), {node, edge->getDest()->getInfo()}});
+            }
+        }
+    };
+
+    Vertex* startVertex = network_.findVertex(start);
+    mst.addVertex(startVertex->getInfo(), startVertex->getLong(), startVertex->getLat());
+    visited.insert(start);
+    addEdges(start);
+
+    while (visited.size() < network_.getVertexSet().size() && !pq.empty()) {
+        auto [weight, nodes] = pq.top();
+        pq.pop();
+        auto [u, v] = nodes;
+        if (visited.find(v) == visited.end()) {
+            Vertex* vertex = network_.findVertex(v);
+            mst.addVertex(vertex->getInfo(), vertex->getLong(), vertex->getLat());
+            mst.addEdge(u, v, weight);
+            visited.insert(v);
+            addEdges(v);
+        }
+    }
+
+    return mst;
+}
+
+std::vector<std::string> Data::findOddDegreeVertices(const Graph& mst) {
+    std::unordered_map<std::string, int> degree;
+    for (const auto& vertex : mst.getVertexSet()) {
+        degree[vertex->getInfo()] = 0;
+    }
+    for (const auto& vertex : mst.getVertexSet()) {
+        for (const auto& edge : vertex->getAdj()) {
+            degree[vertex->getInfo()]++;
+        }
+    }
+
+    std::vector<std::string> oddVertices;
+    for (const auto& [vertex, deg] : degree) {
+        if (deg % 2 != 0) {
+            oddVertices.push_back(vertex);
+        }
+    }
+
+    return oddVertices;
+}
+
+std::vector<std::pair<std::string, std::string>> Data::minimumWeightMatching(const std::vector<std::string>& oddVertices) {
+    std::vector<std::pair<std::string, std::string>> matching;
+    std::unordered_set<std::string> unmatched(oddVertices.begin(), oddVertices.end());
+
+    while (!unmatched.empty()) {
+        std::string u = *unmatched.begin();
+        unmatched.erase(u);
+
+        std::string bestMatch;
+        int bestWeight = INF;
+        for (const std::string& v : unmatched) {
+            Vertex* vertex = network_.findVertex(u);
+            Vertex* dest = network_.findVertex(v);
+            for (const auto& edge : vertex->getAdj()) {
+                if (edge->getDest()->getInfo() == dest->getInfo()) {
+                    int weight = edge->getWeight();
+                    if (weight < bestWeight) {
+                        bestWeight = weight;
+                        bestMatch = v;
+                    }
+                    break;
+                }
+            }
+        }
+
+        matching.emplace_back(u, bestMatch);
+        unmatched.erase(bestMatch);
+    }
+
+    return matching;
+}
+
+std::vector<std::string> Data::findEulerCircuit(Graph& graph) {
+    std::vector<std::string> circuit;
+    std::stack<std::string> stack;
+    std::unordered_map<std::string, std::list<std::string>> adjList;
+
+    for (const auto& vertex : graph.getVertexSet()) {
+        for (const auto& edge : vertex->getAdj()) {
+            adjList[vertex->getInfo()].push_back(edge->getDest()->getInfo());
+        }
+    }
+
+    std::string start = graph.getVertexSet()[0]->getInfo();
+    stack.push(start);
+
+    while (!stack.empty()) {
+        std::string current = stack.top();
+        if (adjList[current].empty()) {
+            circuit.push_back(current);
+            stack.pop();
+        } else {
+            std::string next = adjList[current].front();
+            adjList[current].pop_front();
+            stack.push(next);
+        }
+    }
+
+    std::reverse(circuit.begin(), circuit.end());
+    return circuit;
+}
+
+std::vector<std::string> Data::eulerToHamiltonian(const std::vector<std::string>& eulerCircuit) {
+    std::unordered_set<std::string> visited;
+    std::vector<std::string> hamiltonianCircuit;
+
+    for (const std::string& node : eulerCircuit) {
+        if (visited.find(node) == visited.end()) {
+            hamiltonianCircuit.push_back(node);
+            visited.insert(node);
+        }
+    }
+
+    hamiltonianCircuit.push_back(hamiltonianCircuit[0]); // Completar o circuito
+    return hamiltonianCircuit;
+}
+
+std::vector<std::string> Data::twoOpt(const std::vector<std::string>& tour) {
+    auto calculateTourCost = [&](const std::vector<std::string>& t) {
+        int cost = 0;
+        for (size_t i = 0; i < t.size() - 1; ++i) {
+            Vertex* v1 = network_.findVertex(t[i]);
+            Vertex* v2 = network_.findVertex(t[i + 1]);
+            for (const auto& edge : v1->getAdj()) {
+                if (edge->getDest()->getInfo() == v2->getInfo()) {
+                    cost += edge->getWeight();
+                    break;
+                }
+            }
+        }
+        return cost;
+    };
+
+    std::vector<std::string> bestTour = tour;
+    int bestCost = calculateTourCost(bestTour);
+
+    bool improvement = true;
+    while (improvement) {
+        improvement = false;
+        for (size_t i = 1; i < bestTour.size() - 2; ++i) {
+            for (size_t j = i + 1; j < bestTour.size() - 1; ++j) {
+                std::vector<std::string> newTour = bestTour;
+                std::reverse(newTour.begin() + i, newTour.begin() + j);
+
+                int newCost = calculateTourCost(newTour);
+                if (newCost < bestCost) {
+                    bestTour = newTour;
+                    bestCost = newCost;
+                    improvement = true;
+                    break; // Adicionar um break para sair do loop interno
+                }
+            }
+            if (improvement) {
+                break; // Adicionar um break para sair do loop externo
+            }
+        }
+    }
+
+    return bestTour;
+}
+
+
+std::vector<std::string> Data::tsp_real_world2(std::string start) {
+    if (network_.getVertexSet().empty() || !isConnected(start)) {
+        std::cout << "No feasible tour exists" << std::endl;
+        return {};
+    }
+
+    Graph originalGraph = copyGraph();
+    Graph mst = primMST(start);
+    std::vector<std::string> oddVertices = findOddDegreeVertices(mst);
+    std::vector<std::pair<std::string, std::string>> matching = minimumWeightMatching(oddVertices);
+
+    for (const auto& pair : matching) {
+        auto firstVertex = originalGraph.findVertex(pair.first);
+        auto secondVertex = originalGraph.findVertex(pair.second);
+        for (const auto& edge : firstVertex->getAdj()) {
+            if (edge->getDest()->getInfo() == pair.second) {
+                mst.addEdge(pair.first, pair.second, edge->getWeight());
+                break; // Adicionando o break para evitar adições duplicadas
+            }
+        }
+    }
+
+    std::vector<std::string> eulerCircuit = findEulerCircuit(mst);
+    std::vector<std::string> hamiltonianCircuit = eulerToHamiltonian(eulerCircuit);
+    std::vector<std::string> optimizedTour = twoOpt(hamiltonianCircuit);
+
+    return optimizedTour;
+}
+
+
+
 
 /*
  Advantages of this approach:

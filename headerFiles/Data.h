@@ -46,15 +46,24 @@ public:
 
 
 
-    bool isConnected(const std::string& start) ;
     std::string bfs_farthest_node(const std::string& start);
     std::unordered_map<std::string, int> dijkstra(const std::string& start);
-    std::vector<std::string> tsp_real_world( std::string start);
+    std::vector<std::string> tsp_real_world1( std::string start);
     void removeVertex(std::string id);
     void removeEdge(std::string id1, std::string id2);
     bool isInBestTour(Vertex* v);
+    Graph copyGraph() const;
+    Graph primMST(const std::string& start);
+    std::vector<std::string> findOddDegreeVertices(const Graph& mst);
+    std::vector<std::pair<std::string, std::string>> minimumWeightMatching(const std::vector<std::string>& oddVertices);
+    std::vector<std::string> findEulerCircuit(Graph& graph);
+    std::vector<std::string> eulerToHamiltonian(const std::vector<std::string>& eulerCircuit);
+    std::vector<std::string> twoOpt(const std::vector<std::string>& tour);
+    bool isConnected(const std::string& start);
+    std::vector<std::string> tsp_real_world2( std::string start);
 
-    private:
+
+private:
         std::vector<Vertex*> bestTour;
         double bestCost;
 

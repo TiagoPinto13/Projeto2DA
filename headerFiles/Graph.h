@@ -41,7 +41,8 @@ public:
     void setDist(double dist);
     void setPath(Edge* path);
 
-    friend class MutablePriorityQueue<Vertex>;
+
+        friend class MutablePriorityQueue<Vertex>;
 
 protected:
     std::string info;
@@ -107,6 +108,7 @@ public:
     bool dfsIsDAG(Vertex* v) const;
     std::vector<std::string> topsort() const;
     double getEdgeWeight(const std::string &source, const std::string &dest) const;
+
 
 
 protected:
