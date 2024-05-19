@@ -252,6 +252,7 @@ void Vertex::setPath(Edge* path) {
     this->path = path;
 }
 
+
 /**
  * @brief Deletes the given edge from the incoming edges of its destination vertex.
  *

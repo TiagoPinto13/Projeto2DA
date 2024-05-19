@@ -12,9 +12,19 @@
 #include <climits>
 #include <stack>
 #include <climits>
+#include <list>
+
 using namespace std;
 
-
+/**
+ * @brief Reads node data from a file and adds vertices to the network.
+ *
+ * @param nodeFilePath Path to the file containing node data.
+ * @param numberOfNodes Number of nodes to read, or -1 to read all nodes.
+ * @throws ios_base::failure if the file cannot be opened.
+ *
+ * @complexity O(N) where N is the number of nodes being read.
+ */
 void Data::readNodes(string nodeFilePath, int numberOfNodes) {
     ifstream nodesFile(nodeFilePath);
     if(nodesFile.fail()){
@@ -54,6 +64,16 @@ void Data::readNodes(string nodeFilePath, int numberOfNodes) {
     }
 
 }
+
+/**
+ * @brief Reads edge data from a file and adds edges to the network.
+ *
+ * @param realWorldGraphs Indicates if the input file has a header line to skip.
+ * @param edgesFilePath Path to the file containing edge data.
+ * @throws ios_base::failure if the file cannot be opened.
+ *
+ * @complexity O(E) where E is the number of edges being read.
+ */
 void Data::readEdges(bool realWorldGraphs, string edgesFilePath) {  //bool to skip the first line, since in the realWorldGraphs there's a 1st line to skip
     ifstream edgesFile(edgesFilePath);
     if(edgesFile.fail()){
@@ -79,6 +99,16 @@ void Data::readEdges(bool realWorldGraphs, string edgesFilePath) {  //bool to sk
     }
 }
 
+
+/**
+ * @brief Parses a file to process edges and optionally store tourism labels.
+ *
+ * @param tourismCSV Indicates if the input file contains tourism labels.
+ * @param edgesFilePath Path to the file containing edge data.
+ * @throws ios_base::failure if the file cannot be opened.
+ *
+ * @complexity O(E) where E is the number of edges being read.
+ */
 void Data::parseTOY(bool tourismCSV, string edgesFilePath) {  //bool to store the names of locals only present in the tourismCSV
     ifstream edgesFile(edgesFilePath);
     if(edgesFile.fail()){
@@ -129,20 +159,48 @@ void Data::parseTOY(bool tourismCSV, string edgesFilePath) {  //bool to store th
     }
 }
 
+
+/**
+ * @brief Resets the visitation state of all nodes in the network.
+ *
+ * @complexity O(V) where V is the number of vertices in the network.
+ */
 void Data::resetNodesVisitation() {
     for(auto vertex : network_.getVertexSet()) {
         vertex->setVisited(false);
     }
 }
 
+
+/**
+ * @brief Returns the network graph.
+ *
+ * @return Graph The network graph.
+ *
+ * @complexity O(1)
+ */
 Graph Data::getNetwork() {
     return network_;
 }
 
+/**
+ * @brief Returns the map of tourism labels.
+ *
+ * @return map<string, string> The map of tourism labels.
+ *
+ * @complexity O(1)
+ */
 map<string, string> Data::getTourismLabels() {
     return tourismLabels;
 }
 
+
+
+/**
+ * @brief Solves the TSP using a backtracking approach.
+ *
+ * @complexity O(N!) where N is the number of nodes.
+ */
 void Data::backtrackingTSP() {
     bestTour.clear();
     bestCost = numeric_limits<double>::max();
@@ -159,6 +217,14 @@ void Data::backtrackingTSP() {
     resetNodesVisitation();
 }
 
+/**
+ * @brief Helper function for backtracking TSP to explore all tours.
+ *
+ * @param currentTour Current tour path.
+ * @param currentCost Current cost of the tour.
+ *
+ * @complexity O(N!) where N is the number of nodes.
+ */
 void Data::backtrack(vector<Vertex*>& currentTour, double currentCost) {
     if (currentTour.size() == network_.getVertexSet().size()+1 && currentTour.back() == currentTour.front()) {
         if (currentCost < bestCost) {
@@ -181,6 +247,15 @@ void Data::backtrack(vector<Vertex*>& currentTour, double currentCost) {
     }
 }
 
+
+/**
+ * @brief Calculates the cost of a given tour.
+ *
+ * @param tour The tour path as a vector of vertices.
+ * @return double The total cost of the tour.
+ *
+ * @complexity O(N^2) where N is the number of nodes in the tour.
+ */
 double Data::calculateTourCost(const vector<Vertex*>& tour) const {
     double cost = 0;
     int nodenr=0;
@@ -207,11 +282,35 @@ double Data::calculateTourCost(const vector<Vertex*>& tour) const {
     return cost;
 }
 
+
+/**
+ * @brief Returns the best tour cost found by the backtracking algorithm.
+ *
+ * @return double The cost of the best tour.
+ *
+ * @complexity O(1)
+ */
 double Data::getCost() {
     return bestCost;
 }
 
+
+
+/**
+ * @brief Calculates the Haversine distance between two geographical points.
+ *
+ * @param lat1 Latitude of the first point.
+ * @param lon1 Longitude of the first point.
+ * @param lat2 Latitude of the second point.
+ * @param lon2 Longitude of the second point.
+ * @return double The distance between the two points.
+ *
+ * @complexity O(1)
+ */
+
+
 double Data::haversineDistance(double lat1, double lon1, double lat2, double lon2) const {
+
     lat1 *= M_PI / 180.0;
     lon1 *= M_PI / 180.0;
     lat2 *= M_PI / 180.0;
@@ -228,6 +327,15 @@ double Data::haversineDistance(double lat1, double lon1, double lat2, double lon
     return EARTHRADIUS * c;
 }
 
+
+/**
+ * @brief Finds the nearest unvisited neighbor of a given vertex.
+ *
+ * @param v The vertex to find the nearest neighbor for.
+ * @return Vertex* Pointer to the nearest neighbor vertex.
+ *
+ * @complexity O(E) where E is the number of edges adjacent to the vertex.
+ */
 Vertex* Data::findNearestNeighbor(Vertex* v) {
     Vertex* nearestNeighbor = nullptr;
     double minDistance = numeric_limits<double>::max();
@@ -245,6 +353,15 @@ Vertex* Data::findNearestNeighbor(Vertex* v) {
     return nearestNeighbor;
 }
 
+
+/**
+ * @brief Finds the Minimum Spanning Tree (MST) of a given graph using Prim's algorithm.
+ *
+ * @param g Pointer to the graph.
+ * @return vector<Vertex*> The vertices of the MST.
+ *
+ * @complexity O((V + E) log V) where V is the number of vertices and E is the number of edges.
+ */
 std::vector<Vertex *> Data::prim(Graph * g) {
     if (g->getVertexSet().empty()) {
         return g->getVertexSet();
@@ -283,6 +400,15 @@ std::vector<Vertex *> Data::prim(Graph * g) {
     return g->getVertexSet();
 }
 
+
+/**
+ * @brief Performs a depth-first search (DFS) on the MST starting from a given vertex.
+ *
+ * @param v The starting vertex for DFS.
+ * @param mst The vertices of the MST.
+ *
+ * @complexity O(V + E) where V is the number of vertices and E is the number of edges in the MST.
+ */
 void Data::dfsMST(Vertex* v, const std::vector<Vertex*>& mst) {
     v->setVisited(true);
 
@@ -299,6 +425,18 @@ void Data::dfsMST(Vertex* v, const std::vector<Vertex*>& mst) {
     }
 }
 
+
+
+
+
+
+/**
+ * @brief Returns the tour found by the approximation algorithm.
+ *
+ * @return vector<Vertex*> The tour as a vector of vertices.
+ *
+ * @complexity O(1)
+ */
 void Data::createMstGraph(Graph &mstGraph, std::vector<Vertex*>  mst) {
     for(auto v : mst) {
         mstGraph.addVertex(v->getInfo(),v->getLong(),v->getLat(), v->hasCoord());
@@ -312,6 +450,15 @@ void Data::createMstGraph(Graph &mstGraph, std::vector<Vertex*>  mst) {
         }
     }
 }
+
+
+/**
+ * @brief Approximates the TSP solution using a triangular heuristic starting from a given node.
+ *
+ * @param startNodeId The ID of the starting node.
+ *
+ * @complexity O((V + E) log V) where V is the number of vertices and E is the number of edges.
+ */
 
 void Data::triangularHeuristicAproximation(const string& startNodeId) {
     aproximation_tour_.clear();
@@ -333,14 +480,37 @@ void Data::triangularHeuristicAproximation(const string& startNodeId) {
     aproximation_tourCost_ = calculateTourCost(aproximation_tour_);
 }
 
+/**
+ * @brief Returns the tour found by the approximation algorithm.
+ *
+ * @return vector<Vertex*> The tour as a vector of vertices.
+ *
+ * @complexity O(1)
+ */
 vector<Vertex*> Data::getAproximationTour() {
     return aproximation_tour_;
 }
 
+
+/**
+ * @brief Returns the cost of the tour found by the approximation algorithm.
+ *
+ * @return double The cost of the tour.
+ *
+ * @complexity O(1)
+ */
 double Data::getAproximationTourCost() {
     return aproximation_tourCost_;
 }
 
+
+/**
+ * @brief Approximates the TSP solution using a clustering approach starting from a given node.
+ *
+ * @param startNodeId The ID of the starting node.
+ *
+ * @complexity O(V^2) where V is the number of vertices.
+ */
 void Data::clusterApproximationTSP(const string& startNodeId){
     const auto& vertices = network_.getVertexSet();
     unordered_set<Vertex*> unvisited(vertices.begin(), vertices.end());
@@ -391,6 +561,15 @@ void Data::clusterApproximationTSP(const string& startNodeId){
 }
 
 
+/**
+ * @brief Finds the nearest neighbor for clustering approach considering unvisited nodes.
+ *
+ * @param v The current vertex.
+ * @param unvisited Set of unvisited vertices.
+ * @return Vertex* Pointer to the nearest neighbor vertex.
+ *
+ * @complexity O(E) where E is the number of edges adjacent to the vertex.
+ */
 Vertex* Data::findNearestNeighborCluster(Vertex* v, const unordered_set<Vertex*>& unvisited) {
     Vertex* nearestNeighbor = nullptr;
     double minDistance = numeric_limits<double>::max();
@@ -411,111 +590,152 @@ Vertex* Data::findNearestNeighborCluster(Vertex* v, const unordered_set<Vertex*>
 
 
 
+/**
+ * @brief Returns the tour found by the clustering approximation algorithm.
+ *
+ * @return vector<Vertex*> The tour as a vector of vertices.
+ *
+ * @complexity O(1)
+ */
 vector<Vertex*> Data::getClusterTour() {
     return cluster_tour_;
 }
 
+
+/**
+ * @brief Returns the cost of the tour found by the clustering approximation algorithm.
+ *
+ * @return double The cost of the tour.
+ *
+ * @complexity O(1)
+ */
 double Data::getClusterTourCost() {
     return cluster_tourCost_;
 }
 
+/**
+ * @brief Approximates the TSP solution using MST starting from a given node.
+ *
+ * @param startNodeId The ID of the starting node.
+ *
+ * @complexity O((V + E) log V) where V is the number of vertices and E is the number of edges.
+ */
+void Data::mstApproximationTSP(const string& startNodeId) {
+    mst_tour_.clear();
+    mst_tourCost_ = 0.0;
 
-
-
-/*TSP REAL WORLD
-vector<string> Data::merge_tours(const vector<vector<string> >& tours) {
-    vector<string> merged_tour;
-    for (const auto& tour : tours) {
-        if (merged_tour.empty()) {
-            merged_tour = tour;
-        } else {
-            for (size_t i = 0; i < merged_tour.size(); ++i) {
-                if (merged_tour[i] == tour[0]) {
-                    merged_tour.insert(merged_tour.begin() + i, tour.begin() + 1, tour.end());
-                    break;
-                }
-            }
-        }
+    Vertex* startVertex = network_.findVertex(startNodeId);
+    if (!startVertex) {
+        cerr << "Start node not found in the graph.\n";
+        return;
     }
-    return merged_tour;
-}
 
-vector<string> Data::tsp_subgraph(const Graph& subgraph, string start) {
-    vector<string> tour;
-    tour.push_back(start);
-    unordered_set<string> unvisited;
-    for (const auto& vertex : subgraph.getVertexSet()) {
-        unvisited.insert(vertex->getInfo());
-    }
-    unvisited.erase(start);
-    string current_node = start;
-    while (!unvisited.empty()) {
-        vector<Edge*> adj;
-        for (auto temp : subgraph.getVertexSet()) {
-            if (temp->getInfo() == current_node) {
-                adj = temp->getAdj();
-                break;
-            }
-        }
-        string next_node;
-        double min_weight = numeric_limits<double>::infinity();
-        for (const auto& edge : adj) {
-            string dest_info = edge->getDest()->getInfo();
-            if (unvisited.count(dest_info) && subgraph.getEdgeWeight(current_node, dest_info) < min_weight) {
-                min_weight = subgraph.getEdgeWeight(current_node, dest_info);
-                next_node = dest_info;
-            }
-        }
-        if (!next_node.empty()) {
-            tour.push_back(next_node);
-            unvisited.erase(next_node);
-            current_node = next_node;
-        } else {
-            break;
-        }
-    }
-    tour.push_back(start);
-    resetNodesVisitation();
-    return tour;
-}
+    MutablePriorityQueue<Vertex> pq;
+    pq.insert(startVertex);
 
+    vector<bool> visited(network_.getVertexSet().size(), false);
+    visited[stoi(startVertex->getInfo())] = true;
 
-vector<string> Data::tsp_real_world(const string& start_node) {
-    vector<vector<string> > subgraph_tours;
-    for (const auto& vertex : network_.getVertexSet()) {
-        Graph subgraph;
-        subgraph.addVertex(vertex->getInfo(), vertex->getLong(), vertex->getLat(), vertex->hasCoord());
-        for (const Edge* edge : vertex->getAdj()) {
-            string dest_node = edge->getDest()->getInfo();
+    while (!pq.empty()) {
+        Vertex* u = pq.extractMin();
+
+        for (Edge* edge : u->getAdj()) {
+            Vertex* v = edge->getDest();
             double weight = edge->getWeight();
-            subgraph.addEdge(vertex->getInfo(), dest_node, weight);
-        }
-        if (subgraph.getVertexSet().size() > 1) {
-            subgraph_tours.push_back(tsp_subgraph(subgraph, vertex->getInfo()));
+            int vIndex = stoi(v->getInfo());
+
+            if (!visited[vIndex]) {
+                v->setParent(u);
+                pq.insert(v);
+                visited[vIndex] = true;
+            }
         }
     }
 
-    vector<string> tour = merge_tours(subgraph_tours);
+    preorderTraversalMST(startVertex);
 
-    // Verifica se o tour é válido
-    if (tour.size() == network_.getVertexSet().size() + 1 && tour.front() == tour.back() && tour.front() == start_node) {
-        return tour;
-    } else {
-        // Se o tour não for válido, retorna um tour vazio
-        return vector<string>();
+    mst_tourCost_ = calculateTourCost(mst_tour_);
+    resetNodesVisitation();
+}
+
+
+/**
+ * @brief Performs a preorder traversal on the MST starting from a given vertex.
+ *
+ * @param u The starting vertex.
+ *
+ * @complexity O(V + E) where V is the number of vertices and E is the number of edges in the MST.
+ */
+void Data::preorderTraversalMST(Vertex* u) {
+    mst_tour_.push_back(u);
+
+    for (Edge* edge : u->getAdj()) {
+        Vertex* v = edge->getDest();
+
+        if (v->getParent() == u) {
+            preorderTraversalMST(v);
+        }
     }
 }
-*/
+
+/**
+ * @brief Returns the tour found by the MST approximation algorithm.
+ *
+ * @return vector<Vertex*> The tour as a vector of vertices.
+ *
+ * @complexity O(1)
+ */
+vector<Vertex*> Data::getMSTTour() {
+    return mst_tour_;
+}
+
+
+/**
+ * @brief Returns the cost of the tour found by the MST approximation algorithm.
+ *
+ * @return double The cost of the tour.
+ *
+ * @complexity O(1)
+ */
+double Data::getMSTTourCost() {
+    return mst_tourCost_;
+}
+
+
+
+
+/**
+ * @brief Returns the best tour found by the backtracking algorithm.
+ *
+ * @return vector<Vertex*> The tour as a vector of vertices.
+ *
+ * @complexity O(1)
+ */
 std::vector<Vertex *> Data::getBestTour() {
     return bestTour;
 }
 
+/**
+ * @brief Returns the cost of the best tour found by the backtracking algorithm.
+ *
+ * @return double The cost of the best tour.
+ *
+ * @complexity O(1)
+ */
 bool Data::isTourism() {
     return tourism;
 }
 
 const int INF = std::numeric_limits<int>::max();
 
+/**
+ * @brief Performs BFS to find the farthest node from a given start node.
+ *
+ * @param start The starting node.
+ * @return string The farthest node found.
+ *
+ * @complexity O(V + E) where V is the number of vertices and E is the number of edges.
+ */
 std::string Data::bfs_farthest_node(const std::string& start) {
     std::unordered_set<std::string> visited;
     std::queue<std::pair<std::string, int>> q; // par (nó, distância)
@@ -549,6 +769,15 @@ std::string Data::bfs_farthest_node(const std::string& start) {
     return farthest_node;
 }
 
+
+/**
+ * @brief Performs Dijkstra's algorithm to find shortest paths from a start node.
+ *
+ * @param start The starting node.
+ * @return unordered_map<string, int> The shortest path distances from the start node.
+ *
+ * @complexity O((V + E) log V) where V is the number of vertices and E is the number of edges.
+ */
 std::unordered_map<std::string, int> Data::dijkstra(const std::string& start) {
     std::unordered_map<std::string, int> distances;
     for (const auto& vertex : network_.getVertexSet()) {
@@ -581,9 +810,18 @@ std::unordered_map<std::string, int> Data::dijkstra(const std::string& start) {
     return distances;
 }
 
-std::vector<std::string> Data::tsp_real_world(std::string start) {
-    if (network_.getVertexSet().empty()) {
-        std::cout << "No path exists" << std::endl;
+
+
+/**
+ * @brief Solves the Traveling Salesman Problem (TSP) using a heuristic approach for real-world graphs.
+ *
+ * @param start The starting node ID.
+ * @return std::vector<std::string> The tour path as a vector of node IDs.
+ *
+ * @complexity O(V^2) where V is the number of vertices. This includes the BFS, Dijkstra, and the main loop.
+ */
+std::vector<std::string> Data::tsp_real_world1(std::string start) {
+    if (network_.getVertexSet().empty() || !isConnected(start)) {
         return {};
     }
 
@@ -606,28 +844,15 @@ std::vector<std::string> Data::tsp_real_world(std::string start) {
                 std::string neighbor = edge->getDest()->getInfo();
                 int weight = edge->getWeight();
 
-                // Adicione uma verificação para garantir que next_node não está vazio antes de acessá-lo
-                if (visited.find(neighbor) == visited.end()) {
-                    if (weight < min_distance) {
-                        min_distance = weight;
-                        next_node = neighbor;
-                    }
+                if (visited.find(neighbor) == visited.end() && weight < min_distance) {
+                    min_distance = weight;
+                    next_node = neighbor;
                 }
             }
         }
 
-        if (next_node.empty()) {
-            for (const auto& vertex : network_.getVertexSet()) {
-                std::string vertex_info = vertex->getInfo();
-                if (visited.find(vertex_info) == visited.end()) {
-                    next_node = vertex_info;
-                    break;
-                }
-            }
-        }
 
         if (next_node.empty()) {
-            std::cout << "No path exists" << std::endl;
             return {};
         }
 
@@ -636,13 +861,20 @@ std::vector<std::string> Data::tsp_real_world(std::string start) {
         current_node = next_node;
     }
 
-    path.push_back(start);  // Retornar ao início para completar o tour
+    path.push_back(start);
     return path;
 }
 
 
 
 
+/**
+ * @brief Removes a vertex from the network.
+ *
+ * @param id The ID of the vertex to remove.
+ *
+ * @complexity O(V + E) where V is the number of vertices and E is the number of edges.
+ */
 void Data::removeVertex(string id) {
     if(network_.findVertex(id) != nullptr) {
         network_.removeVertex(id);
@@ -652,6 +884,15 @@ void Data::removeVertex(string id) {
     }
 }
 
+
+/**
+ * @brief Removes an edge between two vertices from the network.
+ *
+ * @param id1 The ID of the first vertex.
+ * @param id2 The ID of the second vertex.
+ *
+ * @complexity O(E) where E is the number of edges.
+ */
 void Data::removeEdge(string id1, string id2) {
     if(network_.findVertex(id1) != nullptr && network_.findVertex(id2) != nullptr) {
         network_.removeEdge(id1, id2);
@@ -661,21 +902,148 @@ void Data::removeEdge(string id1, string id2) {
     }
 }
 
-/*
- Advantages of this approach:
 
-Handles real-world graphs that are not fully connected.
-Allows arbitrary starting points specified by the user.
-Employs scalable algorithms like DFS or BFS for subgraph identification.
-Utilizes heuristic methods for TSP within subgraphs, balancing efficiency and optimality.
 
-Disadvantages:
 
-May not guarantee an optimal solution due to the heuristic nature of TSP algorithms.
-Complexity increases with the number of disconnected components in the graph.
-Requires careful handling of merging subgraph tours to minimize tour length.
-
-The branch-and-bound method:
- The problem is broken down into sub-problems in this approach. The solution of those individual sub-problems would provide an optimal solution.
-Complexity: O(N^2 * 2^N)
+/**
+ * @brief Checks if the network is connected starting from a given node.
+ *
+ * @param start The starting node ID.
+ * @return bool True if the network is connected, false otherwise.
+ *
+ * @complexity O(V + E) where V is the number of vertices and E is the number of edges.
  */
+bool Data::isConnected(const std::string& start) {
+    if (network_.getVertexSet().empty()) return false;
+
+    std::unordered_set<std::string> visited;
+    std::queue<std::string> q;
+    q.push(start);
+    visited.insert(start);
+
+    while (!q.empty()) {
+        std::string node = q.front();
+        q.pop();
+
+        Vertex* vertex = network_.findVertex(node);
+        if (vertex != nullptr) {
+            for (const auto& edge : vertex->getAdj()) {
+                std::string neighbor = edge->getDest()->getInfo();
+                if (visited.find(neighbor) == visited.end()) {
+                    visited.insert(neighbor);
+                    q.push(neighbor);
+                }
+            }
+        }
+    }
+
+    return visited.size() == network_.getVertexSet().size();
+}
+
+
+
+/**
+ * @brief Optimizes a given TSP tour using the two-opt algorithm.
+ *
+ * @param tour The initial tour path.
+ * @return std::vector<std::string> The optimized tour path.
+ *
+ * @complexity O(N^2 * E) where N is the number of nodes and E is the number of edges.
+ */
+
+std::vector<std::string> Data::twoOpt(const std::vector<std::string>& tour) {
+    auto calculateTourCost = [&](const std::vector<std::string>& t) {
+        int cost = 0;
+        for (size_t i = 0; i < t.size() - 1; ++i) {
+            Vertex* v1 = network_.findVertex(t[i]);
+            Vertex* v2 = network_.findVertex(t[i + 1]);
+            if (v1 && v2) {
+                for (const auto& edge : v1->getAdj()) {
+                    if (edge->getDest()->getInfo() == v2->getInfo()) {
+                        cost += edge->getWeight();
+                        break;
+                    }
+                }
+            } else {
+                return std::numeric_limits<int>::max();
+            }
+        }
+        return cost;
+    };
+
+    std::vector<std::string> bestTour = tour;
+    int bestCost = calculateTourCost(bestTour);
+
+    bool improvement = true;
+    int iteration = 0;
+    int noImprovementCount = 0;
+    const int maxNoImprovement = 100;
+
+    while (improvement && noImprovementCount < maxNoImprovement) {
+        improvement = false;
+
+        for (size_t i = 1; i < bestTour.size() - 1; ++i) {
+            for (size_t j = i + 2; j < bestTour.size(); ++j) {
+                std::vector<std::string> newTour = bestTour;
+                std::reverse(newTour.begin() + i, newTour.begin() + j);
+
+                int newCost = calculateTourCost(newTour);
+
+                if (newCost < bestCost) {
+                    bestTour = newTour;
+                    bestCost = newCost;
+                    improvement = true;
+                    noImprovementCount = 0;
+                }
+            }
+        }
+
+        iteration++;
+        noImprovementCount++;
+    }
+
+    return bestTour;
+}
+
+
+
+/**
+ * @brief Solves the TSP using a hybrid approach for real-world graphs, combining heuristic approach and two-opt heuristic.
+ *
+ * @param start The starting node ID.
+ * @return std::vector<std::string> The optimized tour path.
+ *
+ * @complexity O((V + E) log V + N^2 * E) where V is the number of vertices, E is the number of edges, and N is the number of nodes in the tour.
+ */
+std::vector<std::string> Data::tsp_real_world2(const std::string start) {
+
+    if (network_.getVertexSet().empty() || !isConnected(start)) {
+        return {};
+    }
+    std::vector<std::string> tour = tsp_real_world1(start);
+    std::vector<std::string> optimizedTour = twoOpt(tour);
+
+    return optimizedTour;
+}
+
+
+
+
+
+/*
+Vantagens:
+
+Simplicidade de implementação.
+Rápido para grafos pequenos.
+Pode ser usado como base para algoritmos mais complexos.
+
+ 
+Desvantagens:
+
+Complexidade exponencial.
+Não garante a solução ótima.
+Não é eficiente para grafos grandes.
+
+ */
+
+

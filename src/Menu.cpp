@@ -20,6 +20,7 @@ void Menu::drawTop(){
     cout << "│" << setw(53) << "│" << endl;
 }
 
+
 void Menu::firstMenu(){
     drawTop();
     cout << "│     Choose the dataset:                          │" << endl;
@@ -233,7 +234,7 @@ void Menu::drawMenu(int option) {
         cin >> key;
         switch (key) {
             case '1':{
-                drawBacktracking();
+                //drawBacktracking();
                 break;
             }
             case '2': {
@@ -249,10 +250,32 @@ void Menu::drawMenu(int option) {
                 drawApproximationAnalysis("0");
                 break;
             }
-            case '5':{
-                drawTspRealWorld("0");
-                break;
+
+            case '5': {
+                drawTop();
+                cout << "│" << setw(53) << "│" << endl;
+                cout << "│    Options:                                      │" << endl;
+                cout << "│     [1] Fast Method                              │" << endl;
+                cout << "│     [2] Cost eficient Method                     │" << endl;
+                drawBottom();
+                char key10;
+                cout << "Choose an option: ";
+                cin >> key10;
+                if (key10 == '1') {
+                    string input;
+                    cout << "Choose a start vertex: ";
+                    cin >> input;
+                    drawTspRealWorld(input);
+                } else if (key10 == '2') {
+                    string input;
+                    cout << "Choose a start vertex: ";
+                    cin >> input;
+                    drawTspRealWorld2(input);
+                } else {
+                    cout << "Invalid option" << endl;
+                }
             }
+                
             case '6': {
                 flag = false;
                 firstMenu();
@@ -274,6 +297,18 @@ void Menu::drawMenu(int option) {
         }
     }
 }
+
+/**
+ * @brief Draw the menu for removing a vertex or an edge from the graph.
+ *
+ * This function displays a menu with options to remove either a vertex or an edge
+ * from the graph. It waits for user input and performs the corresponding operation.
+ *
+ * The available options are:
+ * - [1] Remove Vertex
+ * - [2] Remove Edge
+ * - [3] Back
+ */
 
 void Menu::drawRemoveVertexEdge(){
     char key;
@@ -318,6 +353,17 @@ void Menu::drawRemoveVertexEdge(){
 
 }
 
+
+/**
+ * @brief Draw the results of the backtracking algorithm for the Traveling Salesman Problem (TSP).
+ *
+ * This function executes the backtracking algorithm to find the solution for the TSP and displays
+ * the results including the tour cost, tour size, time taken for computation, and the vertices
+ * included in the best tour.
+ *
+ * If the problem involves tourism, it also displays additional information about each vertex,
+ * such as tourism labels.
+ */
 void Menu::drawBacktracking() {
 
     auto start = chrono::high_resolution_clock::now();
@@ -358,6 +404,16 @@ void Menu::drawBacktracking() {
     waitForEnter();
 }
 
+
+/**
+ * @brief Draw the result of the Triangular Approximation Heuristic for the Traveling Salesman Problem (TSP).
+ *
+ * This function calculates the Triangular Approximation Heuristic solution for the TSP
+ * starting from the specified vertex and draws the result along with the tour cost
+ * and the time taken for the calculation.
+ *
+ * @param vertex_id The ID of the starting vertex for the TSP tour.
+ */
 void Menu::drawTriangular(string vertex_id) {
     auto start = chrono::high_resolution_clock::now();
     data_.triangularHeuristicAproximation(vertex_id);
@@ -383,6 +439,16 @@ void Menu::drawTriangular(string vertex_id) {
     waitForEnter();
 }
 
+
+/**
+ * @brief Draw the result of the Cluster Approximation Heuristic for the Traveling Salesman Problem (TSP).
+ *
+ * This function calculates the Cluster Approximation Heuristic solution for the TSP
+ * starting from the specified vertex and draws the result along with the tour cost
+ * and the time taken for the calculation.
+ *
+ * @param vertex_id The ID of the starting vertex for the TSP tour.
+ */
 void Menu::drawCluster(string vertex_id) {
     auto start = chrono::high_resolution_clock::now();
     data_.clusterApproximationTSP(vertex_id);
@@ -403,6 +469,20 @@ void Menu::drawCluster(string vertex_id) {
 }
 
 
+
+
+
+
+/**
+ * @brief Draw the result of the Approximation Heuristic Analysis for the Traveling Salesman Problem (TSP).
+ *
+ * This function calculates and compares the results of three approximation heuristics
+ * (Triangular Approximation, Cluster Approximation, and MST Approximation) for the TSP
+ * starting from the specified vertex. It draws the results of each heuristic along with
+ * the tour cost and the time taken for the calculation.
+ *
+ * @param vertex_id The ID of the starting vertex for the TSP tour.
+ */
 void Menu::drawApproximationAnalysis(std::string vertex_id) {
     cout << "┌─ Approximation Heuristic Analysis ───────────────┐" << endl;
     cout << "│" << setw(53) << "│" << endl;
@@ -445,38 +525,102 @@ void Menu::drawApproximationAnalysis(std::string vertex_id) {
 }
 
 double Menu::calculate_tour_cost(const std::vector<std::string>& tour) {
-    double total_cost = 0.0;
+    int cost = 0;
     for (size_t i = 0; i < tour.size() - 1; ++i) {
-        double edge_weight = data_.getNetwork().getEdgeWeight(tour[i], tour[i + 1]);
-        total_cost += edge_weight;
+        Vertex* v1 = data_.getNetwork().findVertex(tour[i]);
+        Vertex* v2 = data_.getNetwork().findVertex(tour[i + 1]);
+        for (const auto& edge : v1->getAdj()) {
+            if (edge->getDest()->getInfo() == v2->getInfo()) {
+                cost += edge->getWeight();
+                break;
+            }
+        }
     }
-    return total_cost;
+    return cost;
 }
 
+/**
+ * @brief Executes the Traveling Salesman Problem (TSP) algorithm on real-world data.
+ *
+ * This function executes the TSP algorithm on real-world data using the fast method.
+ * It prompts the user to input a start vertex ID and then computes the TSP tour
+ * using the fast method. It displays the start node, the time taken to compute
+ * the tour, the tour cost, and the tour itself. If no feasible tour exists,
+ * it notifies the user.
+ *
+ * @param vertex_id The ID of the start vertex for the TSP algorithm.
+ */
 void Menu::drawTspRealWorld(std::string vertex_id) {
     auto start = chrono::high_resolution_clock::now();
-    std::vector<std::string> tour = data_.tsp_real_world(vertex_id);
+    std::vector<std::string> tour = data_.tsp_real_world1(vertex_id);
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> duration = end - start;
 
+    int count = 0;
     cout << "┌─ TSP in Real World ──────────────────────────────┐" << endl;
     cout << "│                                                  │" << endl;
-    cout << "│ Start Node: " << left << setw(36) << vertex_id << " │" << endl;
+    if(std::stoi(vertex_id) > 9)
+        cout << "│ Start Node: " << left << setw(36) << vertex_id << "│" << endl;
+    else
+        cout << "│ Start Node: " << left << setw(37) << vertex_id << "│" << endl;
 
     if (!tour.empty()) {
-        cout << "│ " << left << setw(12) << "Time taken:" << right << left << setw(37) << to_string(duration.count()) +  " seconds" << "│" << endl;
-
-        cout << "│ " << left << setw(12) << "Tour Cost:" << left << setw(39) << calculate_tour_cost(tour) << "│" << endl;
+        cout << "│ " << left << setw(12) << "Time taken:" << right << left << setw(37) << to_string(duration.count()) + " seconds" << "│" << endl;
+        cout << "│ " << left << setw(12) << "Tour Cost:" << left << setw(37) << fixed << setprecision(2) << calculate_tour_cost(tour) << "│" << endl;
         cout << "│ " << left << setw(12) << "Tour:" << "[";
-        int count=0;
         for (size_t i = 0; i < tour.size(); ++i) {
+            std::cout << "│ " << std::left << std::setw(48) << tour[i];
+            if (i < tour.size() - 1) {
+                std::cout << ", ";
+            }
+            std::cout << "│" << std::endl;
             count++;
+        }
+        std::cout << "│" << std::left << std::setw(48) << "]" << "│" << std::endl;
+    } else {
+        cout << "│ No feasible tour exists.                         │" << endl;
+    }
+    cout << "│                                                  │" << endl;
+    cout << "└──────────────────────────────────────────────────┘" << endl;
+    waitForEnter();
+}
+
+/**
+ * @brief Executes the Traveling Salesman Problem (TSP) algorithm on real-world data.
+ *
+ * This function executes the TSP algorithm on real-world data using the cost-efficient method.
+ * It prompts the user to input a start vertex ID and then computes the TSP tour
+ * using the cost-efficient method. It displays the start node, the time taken to compute
+ * the tour, the tour cost, and the tour itself. If no feasible tour exists,
+ * it notifies the user.
+ *
+ * @param vertex_id The ID of the start vertex for the TSP algorithm.
+ */
+void Menu::drawTspRealWorld2(std::string vertex_id) {
+    auto start = chrono::high_resolution_clock::now();
+    std::vector<std::string> tour = data_.tsp_real_world2(vertex_id);
+    auto end = chrono::high_resolution_clock::now();
+    chrono::duration<double> duration = end - start;
+    int count2=0;
+    cout << "┌─ TSP in Real World ──────────────────────────────┐" << endl;
+    cout << "│                                                  │" << endl;
+    if(std::stoi(vertex_id) > 9)
+        cout << "│ Start Node: " << left << setw(36) << vertex_id << "│" << endl;
+    else
+        cout << "│ Start Node: " << left << setw(37) << vertex_id << "│" << endl;
+
+    if (!tour.empty()) {
+        cout << "│ " << left << setw(12) << "Time taken:" << right << left << setw(37) << to_string(duration.count()) + " seconds" << "│" << endl;
+        cout << "│ " << left << setw(12) << "Tour Cost:" << left << setw(37) << fixed << setprecision(2) << calculate_tour_cost(tour) << "│" << endl;
+        cout << "│ " << left << setw(12) << "Tour:" << "[";
+        for (size_t i = 0; i < tour.size(); ++i) {
             cout << tour[i];
             if (i < tour.size() - 1) {
                 cout << ", ";
             }
-            if(count%9==0)
-                cout<<endl;
+            if(count2 % 10==0)
+                cout << endl;
+            count2++;
         }
         cout << "]" << "│" << endl;
     } else {
