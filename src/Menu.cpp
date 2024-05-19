@@ -493,10 +493,12 @@ void Menu::drawApproximationAnalysis(std::string vertex_id) {
 
     chrono::duration<double> duration = end - start;
 
+    cout << "│  Backtracking Algorithm:                         │" << endl;
     cout << "│ " << left << setw(12) << "Tour cost: " << right << left << setw(36) << data_.getCost() << right << " │" << endl;
     cout << "│ " << left << setw(12) << "Tour size: " << right << left << setw(36) << data_.getBestTour().size() << right << " │" << endl;
     cout << "│ " << left << setw(12) << "Time taken: " << right << left <<  setw(37) << to_string(duration.count()) +  " seconds" << "│" << right << endl;
-
+    cout << "│" << setw(53) << "│" << endl;
+    
     auto start1 = chrono::high_resolution_clock::now();
     data_.triangularHeuristicAproximation(vertex_id);
     auto end1 = chrono::high_resolution_clock::now();
