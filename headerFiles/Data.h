@@ -40,9 +40,8 @@ public:
     std::vector<Vertex*> getMSTTour();
     double getMSTTourCost();
 
-    //std::vector<std::string> merge_tours(const std::vector<std::vector<std::string> >& tours);
-    //std::vector<std::string> tsp_subgraph(const Graph& subgraph, std::string start);
-    //std::vector<std::string> tsp_real_world(const std::string& start_node);
+
+
 
 
 
@@ -51,13 +50,7 @@ public:
     std::vector<std::string> tsp_real_world1( std::string start);
     void removeVertex(std::string id);
     void removeEdge(std::string id1, std::string id2);
-    bool isInBestTour(Vertex* v);
-    Graph copyGraph() const;
-    Graph primMST(const std::string& start);
-    std::vector<std::string> findOddDegreeVertices(const Graph& mst);
-    std::vector<std::pair<std::string, std::string>> minimumWeightMatching(const std::vector<std::string>& oddVertices);
-    std::vector<std::string> findEulerCircuit(Graph& graph);
-    std::vector<std::string> eulerToHamiltonian(const std::vector<std::string>& eulerCircuit);
+
     std::vector<std::string> twoOpt(const std::vector<std::string>& tour);
     bool isConnected(const std::string& start);
     std::vector<std::string> tsp_real_world2( std::string start);
