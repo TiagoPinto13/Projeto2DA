@@ -540,16 +540,24 @@ double Menu::calculate_tour_cost(const std::vector<std::string>& tour) {
     return cost;
 }
 
+
 /**
- * @brief Executes the Traveling Salesman Problem (TSP) algorithm on real-world data.
+ * @brief Draw the results of the TSP solution for a real-world scenario starting from a specific vertex.
  *
- * This function executes the TSP algorithm on real-world data using the fast method.
- * It prompts the user to input a start vertex ID and then computes the TSP tour
- * using the fast method. It displays the start node, the time taken to compute
- * the tour, the tour cost, and the tour itself. If no feasible tour exists,
- * it notifies the user.
+ * This function executes a real-world TSP algorithm starting from the specified vertex and displays
+ * the results, including the tour cost, time taken for computation, and the vertices included in the tour.
+ * The vertices in the tour are displayed 8 per line.
  *
- * @param vertex_id The ID of the start vertex for the TSP algorithm.
+ * @param vertex_id The starting vertex for the TSP algorithm.
+ */
+/**
+ * @brief Draw the results of the TSP solution for a real-world scenario starting from a specific vertex.
+ *
+ * This function executes a real-world TSP algorithm starting from the specified vertex and displays
+ * the results, including the tour cost, time taken for computation, and the vertices included in the tour.
+ * The vertices in the tour are displayed 8 per line.
+ *
+ * @param vertex_id The starting vertex for the TSP algorithm.
  */
 void Menu::drawTspRealWorld(std::string vertex_id) {
     auto start = chrono::high_resolution_clock::now();
@@ -557,10 +565,9 @@ void Menu::drawTspRealWorld(std::string vertex_id) {
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> duration = end - start;
 
-    int count = 0;
     cout << "┌─ TSP in Real World ──────────────────────────────┐" << endl;
     cout << "│                                                  │" << endl;
-    if(std::stoi(vertex_id) > 9)
+    if (std::stoi(vertex_id) > 9)
         cout << "│ Start Node: " << left << setw(36) << vertex_id << "│" << endl;
     else
         cout << "│ Start Node: " << left << setw(37) << vertex_id << "│" << endl;
@@ -568,16 +575,24 @@ void Menu::drawTspRealWorld(std::string vertex_id) {
     if (!tour.empty()) {
         cout << "│ " << left << setw(12) << "Time taken:" << right << left << setw(37) << to_string(duration.count()) + " seconds" << "│" << endl;
         cout << "│ " << left << setw(12) << "Tour Cost:" << left << setw(37) << fixed << setprecision(2) << calculate_tour_cost(tour) << "│" << endl;
-        cout << "│ " << left << setw(12) << "Tour:" << "[";
+        cout << "│ Tour:                                            │" << endl;
+
+        size_t count = 0;
+        cout << "│ ";
         for (size_t i = 0; i < tour.size(); ++i) {
-            std::cout << "│ " << std::left << std::setw(48) << tour[i];
-            if (i < tour.size() - 1) {
-                std::cout << ", ";
+            if (count == 8) {
+                cout << " │" << endl << "│ ";
+                count = 0;
             }
-            std::cout << "│" << std::endl;
+            cout << setw(4) << tour[i];
+            if (i < tour.size() - 1) {
+                cout << ", ";
+            }
             count++;
         }
-        std::cout << "│" << std::left << std::setw(48) << "]" << "│" << std::endl;
+        if (count > 0) {
+            cout << std::string((8 - count) * 6, ' ') << " │" << endl; // Adjust spacing for the last line
+        }
     } else {
         cout << "│ No feasible tour exists.                         │" << endl;
     }
@@ -585,6 +600,7 @@ void Menu::drawTspRealWorld(std::string vertex_id) {
     cout << "└──────────────────────────────────────────────────┘" << endl;
     waitForEnter();
 }
+
 
 /**
  * @brief Executes the Traveling Salesman Problem (TSP) algorithm on real-world data.
