@@ -63,7 +63,6 @@ private:
         std::vector<Vertex*> cluster_tour_;
         double cluster_tourCost_;
 
-<<<<<<< HEAD
         std::vector<Vertex*> mst_tour_;
         double mst_tourCost_;
 
@@ -71,12 +70,7 @@ private:
         Graph network_;
         std::map<std::string,std::string> tourismLabels;
 
-    };
-=======
-    bool tourism=false;
-    Graph network_;
-    std::map<std::string,std::string> tourismLabels;
+
 };
->>>>>>> 02668a05e7f0d74c0924fe8355b357a74597bf15
 
 #endif //PROJ2DA_DATA_H
