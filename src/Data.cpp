@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iostream>
 #include <algorithm>
+#include <unordered_map>
 #include <limits>
 #include <climits>
 #include <stack>
@@ -43,7 +44,8 @@ void Data::readNodes(string nodeFilePath, int numberOfNodes) {
             double latitude = stod(latitude_str);
             double longitude = stod(longitude_str);
 
-            network_.addVertex(id_str, longitude, latitude);
+            network_.addVertex(id_str, longitude, latitude, true);
+
         }
     }
     else {
@@ -57,7 +59,7 @@ void Data::readNodes(string nodeFilePath, int numberOfNodes) {
             double latitude = stod(latitude_str);
             double longitude = stod(longitude_str);
 
-            network_.addVertex(id_str, longitude, latitude);
+            network_.addVertex(id_str, longitude, latitude, true);
         }
     }
 
@@ -149,8 +151,8 @@ void Data::parseTOY(bool tourismCSV, string edgesFilePath) {  //bool to store th
         double weight = stod(distancia);
 
         if(!network_.addEdge(origem, destino, weight)) {
-            network_.addVertex(origem,0,0);
-            network_.addVertex(destino,0,0);
+            network_.addVertex(origem,0,0, false);
+            network_.addVertex(destino,0,0, false);
             network_.addEdge(origem, destino, weight);
         }
         network_.addEdge(destino, origem, weight);
@@ -256,17 +258,26 @@ void Data::backtrack(vector<Vertex*>& currentTour, double currentCost) {
  */
 double Data::calculateTourCost(const vector<Vertex*>& tour) const {
     double cost = 0;
-
+    int nodenr=0;
     for (size_t i = 0; i < tour.size() - 1; ++i) {
         Vertex* v1 = tour[i];
         Vertex* v2 = tour[i + 1];
-
+        bool haveEdge=false;
         for (Edge* edge : v1->getAdj()) {
-            if (edge->getDest() == v2) {
+            if (edge->getDest()->getInfo() == v2->getInfo()) {
                 cost += edge->getWeight();
+                nodenr++;
+                haveEdge=true;
                 break;
             }
         }
+        if(!haveEdge && v1->hasCoord() && v2->hasCoord()) {
+            cost += haversineDistance(v1->getLat(),v1->getLong(),v2->getLat(),v2->getLong());
+            nodenr++;
+        }
+    }
+    if(nodenr+1 < aproximation_tour_.size()) {
+        return -1;
     }
     return cost;
 }
@@ -284,6 +295,7 @@ double Data::getCost() {
 }
 
 
+
 /**
  * @brief Calculates the Haversine distance between two geographical points.
  *
@@ -295,13 +307,16 @@ double Data::getCost() {
  *
  * @complexity O(1)
  */
-double haversineDistance(double lat1, double lon1, double lat2, double lon2){
+
+
+double Data::haversineDistance(double lat1, double lon1, double lat2, double lon2) const {
+
     lat1 *= M_PI / 180.0;
     lon1 *= M_PI / 180.0;
     lat2 *= M_PI / 180.0;
     lon2 *= M_PI / 180.0;
 
-    const double EARTHRADIUS = 6371.0;
+    const double EARTHRADIUS = 6371000;
 
     double dLat = lat2 - lat1;
     double dLon = lon2 - lon1;
@@ -411,6 +426,32 @@ void Data::dfsMST(Vertex* v, const std::vector<Vertex*>& mst) {
 }
 
 
+
+
+
+
+/**
+ * @brief Returns the tour found by the approximation algorithm.
+ *
+ * @return vector<Vertex*> The tour as a vector of vertices.
+ *
+ * @complexity O(1)
+ */
+void Data::createMstGraph(Graph &mstGraph, std::vector<Vertex*>  mst) {
+    for(auto v : mst) {
+        mstGraph.addVertex(v->getInfo(),v->getLong(),v->getLat(), v->hasCoord());
+        auto ep = v->getPath();
+        if (ep != nullptr) {
+            if(!mstGraph.addBidirectionalEdge(ep->getOrig()->getInfo(),ep->getDest()->getInfo(),ep->getWeight())) {
+                mstGraph.addVertex(ep->getOrig()->getInfo(),ep->getOrig()->getLong(),ep->getOrig()->getLat(), ep->getOrig()->hasCoord());
+                mstGraph.addVertex(ep->getDest()->getInfo(),ep->getDest()->getLong(),ep->getDest()->getLat(), ep->getDest()->hasCoord());
+                mstGraph.addBidirectionalEdge(ep->getOrig()->getInfo(),ep->getDest()->getInfo(),ep->getWeight());
+            }
+        }
+    }
+}
+
+
 /**
  * @brief Approximates the TSP solution using a triangular heuristic starting from a given node.
  *
@@ -418,42 +459,25 @@ void Data::dfsMST(Vertex* v, const std::vector<Vertex*>& mst) {
  *
  * @complexity O((V + E) log V) where V is the number of vertices and E is the number of edges.
  */
+
 void Data::triangularHeuristicAproximation(const string& startNodeId) {
     aproximation_tour_.clear();
     aproximation_tourCost_ = 0.0;
-
-    Vertex* startVertex = network_.findVertex(startNodeId);
+    Vertex* startVertex = network_.findVertex("0");
     if (!startVertex) {
         cerr << "Start node not found in the graph.\n";
         return;
     }
-
     std::vector<Vertex*> mst = prim(&network_);
-
-    for(auto v : network_.getVertexSet()) {
-        v->setVisited(false);
-    }
+    resetNodesVisitation();
     Graph mstGraph;
-    for(auto v : mst) {
-        mstGraph.addVertex(v->getInfo(),v->getLong(),v->getLat());
-        auto ep = v->getPath();
-        if (ep != nullptr) {
-            if(!mstGraph.addBidirectionalEdge(ep->getOrig()->getInfo(),ep->getDest()->getInfo(),ep->getWeight())) {
-                mstGraph.addVertex(ep->getOrig()->getInfo(),ep->getOrig()->getLong(),ep->getOrig()->getLat());
-                mstGraph.addVertex(ep->getDest()->getInfo(),ep->getDest()->getLong(),ep->getDest()->getLat());
-                mstGraph.addBidirectionalEdge(ep->getOrig()->getInfo(),ep->getDest()->getInfo(),ep->getWeight());
-            }
-        }
-    }
-    //dfsMST(startVertex, mstGraph.getVertexSet());
-    auto vector1 = mstGraph.dfs();
-    for(auto s: vector1) {
+    createMstGraph(mstGraph,mst);
+    auto tour = mstGraph.dfs();
+    for(auto s: tour) {
         aproximation_tour_.push_back(network_.findVertex(s));
     }
     aproximation_tour_.push_back(startVertex);
-
     aproximation_tourCost_ = calculateTourCost(aproximation_tour_);
-    //resetNodesVisitation();
 }
 
 /**
@@ -680,12 +704,27 @@ double Data::getMSTTourCost() {
 
 
 
+/**
+ * @brief Returns the best tour found by the backtracking algorithm.
+ *
+ * @return vector<Vertex*> The tour as a vector of vertices.
+ *
+ * @complexity O(1)
+ */
+std::vector<Vertex *> Data::getBestTour() {
+    return bestTour;
+}
 
-
-
-
-
-
+/**
+ * @brief Returns the cost of the best tour found by the backtracking algorithm.
+ *
+ * @return double The cost of the best tour.
+ *
+ * @complexity O(1)
+ */
+bool Data::isTourism() {
+    return tourism;
+}
 
 const int INF = std::numeric_limits<int>::max();
 

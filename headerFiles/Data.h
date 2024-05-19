@@ -23,11 +23,12 @@ public:
     void backtrack(std::vector<Vertex*>& currentTour, double currentCost);
 
     double calculateTourCost(const std::vector<Vertex*>& tour) const;
-    double haversineDistance(double lat1, double lon1, double lat2, double lon2);
+    double haversineDistance(double lat1, double lon1, double lat2, double lon2) const;
     void resetNodesVisitation();
     Vertex* findNearestNeighbor(Vertex* v);
     void triangularHeuristicAproximation(const std::string& startNodeId);
     void dfsMST(Vertex* v, const std::vector<Vertex*>& mst);
+    void createMstGraph(Graph &mstGraph, std::vector<Vertex*>  mst);
     std::vector<Vertex*> getAproximationTour();
     double getAproximationTourCost();
     void clusterApproximationTSP(const std::string& startNodeId);
@@ -39,10 +40,6 @@ public:
     void mstApproximationTSP(const std::string& startNodeId);
     std::vector<Vertex*> getMSTTour();
     double getMSTTourCost();
-
-
-
-
 
 
     std::string bfs_farthest_node(const std::string& start);
@@ -66,6 +63,7 @@ private:
         std::vector<Vertex*> cluster_tour_;
         double cluster_tourCost_;
 
+<<<<<<< HEAD
         std::vector<Vertex*> mst_tour_;
         double mst_tourCost_;
 
@@ -74,5 +72,11 @@ private:
         std::map<std::string,std::string> tourismLabels;
 
     };
+=======
+    bool tourism=false;
+    Graph network_;
+    std::map<std::string,std::string> tourismLabels;
+};
+>>>>>>> 02668a05e7f0d74c0924fe8355b357a74597bf15
 
 #endif //PROJ2DA_DATA_H

@@ -5,6 +5,7 @@
 #include <vector>
 #include <queue>
 #include <limits>
+#include <unordered_map>
 #include <algorithm>
 #include "MutablePriorityQueue.h"
 
@@ -14,9 +15,11 @@ class Edge;
 
 class Vertex {
 public:
-    Vertex(const std::string& in, const double & longitude, const double & latitude);
+    Vertex(const std::string& in, const double & longitude, const double & latitude, bool h);
     Edge* addEdge(Vertex* dest, double w);
     bool removeEdge(const std::string& in);
+    bool hasCoord();
+    void setHasCoord(bool hasco);
     void removeOutgoingEdges();
     void setParent(Vertex* parent);
     Vertex* getParent() const;
@@ -45,6 +48,7 @@ public:
         friend class MutablePriorityQueue<Vertex>;
 
 protected:
+    bool hascoor;
     std::string info;
     double longitude;
     double latitude;
@@ -89,11 +93,12 @@ protected:
 class Graph {
 public:
     Vertex* findVertex(const std::string& in) const;
-    bool addVertex(const std::string& in, const double & longitude, const double & latitude);
+    bool addVertex(const std::string& in, const double & longitude, const double & latitude, bool f);
     bool removeVertex(const std::string& in);
     bool addEdge(const std::string& source, const std::string& dest, double w);
     bool removeEdge(const std::string& source, const std::string& dest);
     bool addBidirectionalEdge(const std::string& source, const std::string& dest, double w);
+
 
     int getNumVertex() const;
     std::vector<Vertex*> getVertexSet() const;

@@ -22,7 +22,6 @@ public:
     void drawBacktracking(/*std::string vertex_id*/); //diz no enunciado que é sempre com o vertex 0
     void drawTriangular(std::string vertex_id);
     void drawCluster(std::string vertex_id);
-    void drawMST(std::string vertex_id);
     void drawApproximationAnalysis(std::string vertex_id);
     void drawTspRealWorld(std::string basicString);
     void drawTspRealWorld2(std::string vertex_id);
