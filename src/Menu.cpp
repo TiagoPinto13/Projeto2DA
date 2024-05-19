@@ -234,7 +234,7 @@ void Menu::drawMenu(int option) {
         cin >> key;
         switch (key) {
             case '1':{
-                //drawBacktracking();
+                drawBacktracking();
                 break;
             }
             case '2': {
