@@ -79,7 +79,7 @@ void Menu::firstMenu(){
     }
     else if(choice == 3){
         drawTop();
-        cout << "│     Choose the Number of Edges:                  │" << endl;
+        cout << "│     Choose the Number of Nodes:                  │" << endl;
         cout << "│          [1] 25                                  │" << endl;
         cout << "│          [2] 50                                  │" << endl;
         cout << "│          [3] 75                                  │" << endl;
